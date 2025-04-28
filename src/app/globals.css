@@ -241,8 +241,8 @@
 
   /* Background Animations */
    @keyframes float {
-      0%, 100% { transform: translateY(0) rotate(-4deg); opacity: 0.5; } /* Slower start/end, less rotation */
-      50% { transform: translateY(-35px) rotate(6deg); opacity: 0.8; } /* Increased vertical movement */
+      0%, 100% { transform: translateY(0) rotate(-3deg) scale(0.95); opacity: 0.6; } /* Subtler rotation and scale */
+      50% { transform: translateY(-40px) rotate(4deg) scale(1.05); opacity: 0.9; } /* Increased vertical movement and subtle scale up */
     }
 
 
@@ -321,7 +321,7 @@
    }
     .animate-balloon-float-3 {
        animation: balloon-float 8s ease-in-out infinite 1s, balloon-sway 3.2s ease-in-out infinite alternate 0.8s; /* Different duration and delay */
-   }
+    }
     .animate-balloon-float-4 {
        animation: balloon-float 6s ease-in-out infinite 0.3s, balloon-sway 2.8s ease-in-out infinite alternate 0.6s; /* Yet another variation */
     }
