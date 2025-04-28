@@ -1,3 +1,4 @@
+
 import type {NextConfig} from 'next';
 
 const nextConfig: NextConfig = {
@@ -18,7 +19,7 @@ const nextConfig: NextConfig = {
       },
       {
         protocol: 'https',
-        hostname: 'i.imgur.com', // Added Imgur domain
+        hostname: 'i.imgur.com', // Ensure Imgur domain is allowed
         port: '',
         pathname: '/**',
       }
