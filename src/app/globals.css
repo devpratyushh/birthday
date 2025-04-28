@@ -184,8 +184,10 @@
 
    .heading-text.final {
      color: hsl(var(--primary-highlight)); /* Ensure final text also has highlight */
-     animation: fade-in-text 0.5s ease-out forwards;
+     opacity: 0; /* Start hidden for fade-in */
+     animation: fade-in-text 0.5s ease-out 0.5s forwards; /* Delay fade-in until after strike */
    }
+
 
     /* Interactive Letter Styles */
     .interactive-word {
@@ -299,7 +301,7 @@
      transform-origin: top;
   }
 
-   /* Balloon Animations */
+   /* Balloon Animations (for countdown decoration) */
    @keyframes balloon-float {
       0%, 100% { transform: translateY(0) rotate(-4deg) scale(1); } /* Add subtle scale */
       50% { transform: translateY(-35px) rotate(6deg) scale(1.05); } /* More movement */
@@ -320,6 +322,9 @@
     .animate-balloon-float-3 {
        animation: balloon-float 8s ease-in-out infinite 1s, balloon-sway 3.2s ease-in-out infinite alternate 0.8s; /* Different duration and delay */
    }
+    .animate-balloon-float-4 {
+       animation: balloon-float 6s ease-in-out infinite 0.3s, balloon-sway 2.8s ease-in-out infinite alternate 0.6s; /* Yet another variation */
+    }
 
 
 }

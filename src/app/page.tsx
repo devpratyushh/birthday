@@ -15,12 +15,33 @@ const TARGET_DATE = new Date('2025-04-30T00:00:00+05:30').getTime();
 export default function Home() {
   const [timeLeft, setTimeLeft] = useState<number | null>(null);
   const [isClient, setIsClient] = useState(false);
-  const [showLetter, setShowLetter] = useState(false);
+   // Check initial state based on current time vs target time
+   const [showLetter, setShowLetter] = useState(() => {
+      if (typeof window !== 'undefined') { // Ensure this runs only on the client
+          const now = new Date().getTime();
+          return TARGET_DATE - now <= 0;
+      }
+      return false; // Default to false on server or before hydration
+   });
   const [headingText, setHeadingText] = useState('Anandita');
   const [headingState, setHeadingState] = useState<'initial' | 'strike' | 'final'>('initial');
 
   useEffect(() => {
-    setIsClient(true);
+    setIsClient(true); // Indicate client-side rendering is complete
+
+    // Calculate initial time left on mount *after* hydration
+    const calculateInitialTimeLeft = () => {
+        const now = new Date().getTime();
+        const difference = TARGET_DATE - now;
+        if (difference <= 0) {
+            setShowLetter(true);
+            setTimeLeft(0);
+        } else {
+            setTimeLeft(difference);
+        }
+    };
+    calculateInitialTimeLeft();
+
 
     const headingTimer = setTimeout(() => {
       setHeadingState('strike');
@@ -38,24 +59,21 @@ export default function Home() {
 
       if (difference <= 0) {
         if (!showLetter) {
-          setShowLetter(true);
-          setTimeLeft(0);
+          setShowLetter(true); // Set showLetter to true if countdown finishes
         }
-        // No need to clear interval here, handle below
+        setTimeLeft(0); // Keep time left at 0
+        return difference; // Return negative diff to stop interval
       } else {
+        // If for some reason the date rolled back, hide letter (unlikely)
          if (showLetter) {
-           setShowLetter(false);
+            setShowLetter(false);
          }
         setTimeLeft(difference);
+        return difference; // Return positive diff to continue interval
       }
-        return difference; // Return difference to check for clearing interval
     };
 
-    const initialDifference = calculateTimeLeft(); // Initial calculation
-     if (initialDifference <= 0) {
-        setShowLetter(true); // Show letter immediately if date has passed
-     }
-
+    // Set up the interval timer
     const timer = setInterval(() => {
        const diff = calculateTimeLeft();
         if (diff <= 0) {
@@ -63,13 +81,14 @@ export default function Home() {
         }
     }, 1000);
 
-    // Cleanup function
+    // Cleanup function for timers
     return () => {
       clearInterval(timer);
       clearTimeout(headingTimer);
     };
-  }, [showLetter]);
+  }, [showLetter]); // Re-run effect if showLetter changes (though mainly controlled internally now)
 
+  // Render basic loading state or null on server/before hydration
   if (!isClient) {
     return (
       <main className="flex min-h-screen flex-col items-center justify-center relative overflow-hidden bg-background p-4 md:p-8">
@@ -81,6 +100,7 @@ export default function Home() {
       </main>
     );
   }
+
 
   return (
     <main className="flex min-h-screen flex-col items-center relative overflow-hidden bg-background p-4 md:p-8 pt-16 md:pt-24">
@@ -94,10 +114,12 @@ export default function Home() {
             <div className="mb-16 md:mb-24 flex flex-col items-center">
                <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-6 text-primary animate-fade-in">
                   <span className="heading-text-wrapper"> {/* Wrapper for positioning */}
-                     <span className={`heading-text ${headingState === 'strike' ? 'strike' : ''} ${headingState === 'final' ? 'final' : ''} transition-opacity duration-500 ${headingState === 'strike' ? 'opacity-100' : (headingState === 'final' ? 'opacity-100' : 'opacity-100')}`}>
+                     <span className={`heading-text ${headingState === 'strike' ? 'strike' : ''} transition-opacity duration-500 ${headingState === 'strike' ? 'opacity-100' : 'opacity-100'}`}>
                          {headingText === 'Anandita' && headingState !== 'final' ? 'Anandita' : ''}
-                         {headingText === 'Babe' && headingState === 'final' ? 'Babe' : ''}
                      </span>
+                      <span className={`heading-text final transition-opacity duration-500 ${headingState === 'final' ? 'opacity-100' : 'opacity-0'}`}>
+                          {headingText === 'Babe' && headingState === 'final' ? 'Babe' : ''}
+                      </span>
                  </span>
                  's Birthday Surprise!
                </h1>
@@ -109,14 +131,18 @@ export default function Home() {
                   <PartyPopper className="absolute -left-10 sm:-left-16 -top-8 sm:-top-12 text-pink-400/80 w-12 h-12 sm:w-16 sm:h-16 animate-balloon-float-1 transform -rotate-12"/>
                   <PartyPopper className="absolute -right-10 sm:-right-16 -top-4 sm:-top-8 text-purple-400/80 w-10 h-10 sm:w-12 sm:h-12 animate-balloon-float-2 transform rotate-6"/>
                   <PartyPopper className="absolute left-4 sm:left-8 -bottom-8 sm:-bottom-12 text-yellow-400/80 w-11 h-11 sm:w-14 sm:h-14 animate-balloon-float-3 transform rotate-10"/>
-                  <PartyPopper className="absolute right-4 sm:right-8 -bottom-4 sm:-bottom-8 text-blue-400/80 w-9 h-9 sm:w-10 sm:h-10 animate-balloon-float-1 animation-delay-300 transform -rotate-8"/>
+                  <PartyPopper className="absolute right-4 sm:right-8 -bottom-4 sm:-bottom-8 text-blue-400/80 w-9 h-9 sm:w-10 sm:h-10 animate-balloon-float-4 transform -rotate-8"/>
 
                  {/* Countdown */}
-                 {timeLeft !== null ? (
+                 {timeLeft !== null && timeLeft > 0 ? ( // Only show countdown if time is left
                     // Ensure Countdown component itself doesn't have conflicting width/margins
                    <Countdown targetTimestamp={TARGET_DATE} />
+                 ) : timeLeft === 0 ? (
+                    // Handle the case where countdown just finished but letter hasn't rendered yet (optional)
+                    <div className="text-xl text-foreground py-10">Almost time!</div>
                  ) : (
-                   <div className="text-xl text-foreground py-10">Calculating time...</div> // Added padding
+                     // Handle initial loading/calculation state
+                   <div className="text-xl text-muted-foreground py-10">Calculating time...</div> // Added padding
                  )}
                </div>
             </div>

@@ -16,17 +16,14 @@ const placeholderImageUrl = (seed: number | string, width = 400, height = 225) =
   `https://picsum.photos/seed/${seed}/${width}/${height}`;
 
 // Updated Imgur links based on user request
-// Note: Image 3 is a placeholder for now
-// Note: Image 6 link seems partial or incorrect, using a generic placeholder. Let's assume the user meant the base image or find a better one if possible.
-// Let's try to get the base image for #6: https://i.imgur.com/WicaBr7.jpeg (Removed _d.webp?...)
-
+// Image 3 is a placeholder
 const imgurLinks = [
     "https://i.imgur.com/nX5MPO4.jpeg", // 1. First Encounter
     "https://i.imgur.com/4QJIaV3.jpeg", // 2. Confession
     placeholderImageUrl("whispers", 400, 225), // 3. Placeholder for Whispers & Cafe Dreams
     "https://i.imgur.com/HrPjQyS.png", // 4. Study Buddies
-    "https://i.imgur.com/WPiDZhs.jpeg", // 5. Pouch Exchange
-    "https://i.imgur.com/WicaBr7.jpeg", // 6. You and Me to Us (Corrected link)
+    "https://i.imgur.com/WicaBr7.jpeg", // 5. You and Me to Us (Originally index 5 / Image 6) - Now at index 4
+    "https://i.imgur.com/WPiDZhs.jpeg", // 6. Pouch Exchange (Originally index 4 / Image 5) - Now at index 5
 ];
 
 export const timelineEvents: TimelineEvent[] = [
@@ -63,20 +60,20 @@ export const timelineEvents: TimelineEvent[] = [
     imageUrl: imgurLinks[3],
   },
    {
-    id: 5, // Renumbered ID - This becomes "You and me to Us"
+    id: 5, // ID 5: "You and me to Us" card
     date: 'Gradually...',
     title: 'From You and Me to Us ❤️',
     description: 'The journey wasn\'t instant, but every shared moment, every laugh, every hurdle overcome, brought us closer, transforming "you" and "me" into "us".',
     icon: Users, // Icon representing partnership/togetherness
-    imageUrl: imgurLinks[5], // Use the 6th image (index 5) for this new card
+    imageUrl: imgurLinks[4], // Use the image originally intended for #6 (index 4)
    },
    {
-    id: 6, // Renumbered ID - This becomes "Pouch Exchange"
+    id: 6, // ID 6: "Pouch Exchange" card
     date: 'Around the Same Time',
     title: 'The Pouch Exchange ✨',
     description: 'A small but significant exchange that holds a special place in our story.',
     icon: Gift,
-    imageUrl: imgurLinks[4], // Use the 5th image (index 4) for this card
+    imageUrl: imgurLinks[5], // Use the image originally intended for #5 (index 5)
   },
    {
     id: 7,
