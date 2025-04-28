@@ -1,7 +1,7 @@
 
 'use client';
 import React, { useEffect, useState } from 'react';
-import { Heart, Star, BookOpen, Pencil, GraduationCap } from 'lucide-react'; // Added JEE related icons
+import { Heart, Star } from 'lucide-react'; // Simplified icons for background
 
 interface AnimatedIcon {
   id: number;
@@ -11,62 +11,59 @@ interface AnimatedIcon {
   animationClass: string;
 }
 
-const ICONS = [Heart, Star, BookOpen, Pencil, GraduationCap]; // Include new icons
-const ICON_PRIORITY = [Heart, Heart, Heart, Star, Star, BookOpen, Pencil, GraduationCap]; // Prioritize Hearts and Stars
+const ICONS = [Heart, Star];
+// Increase heart frequency dramatically
+const ICON_PRIORITY = [
+    Heart, Heart, Heart, Heart, Heart, Heart, Star, Heart, Heart, Heart, Star, Heart
+];
 
 const BackgroundAnimation: React.FC = () => {
   const [icons, setIcons] = useState<AnimatedIcon[]>([]);
   const [isClient, setIsClient] = useState(false);
-  const numIcons = 35; // Slightly increased number of icons for more density
+  const numIcons = 45; // Increased number for denser hearts
 
   useEffect(() => {
-    setIsClient(true); // Ensure this runs only on the client
+    setIsClient(true);
   }, []);
 
   useEffect(() => {
-    if (!isClient) return; // Don't generate icons on the server
+    if (!isClient) return;
 
     const generateIcons = () => {
       const newIcons: AnimatedIcon[] = [];
-      const iconTypesCount = ICON_PRIORITY.length; // Use priority array length
+      const iconTypesCount = ICON_PRIORITY.length;
       for (let i = 0; i < numIcons; i++) {
-        // Choose an icon based on priority list
-        const IconComponent = ICON_PRIORITY[i % iconTypesCount]; // Cycle through priority list
+        const IconComponent = ICON_PRIORITY[i % iconTypesCount];
 
-        const size = Math.random() * 18 + 10; // Size between 10px and 28px
-        const top = `${Math.random() * 100}%`;
-        const left = `${Math.random() * 100}%`;
-        const animationDuration = `${Math.random() * 10 + 6}s`; // Duration 6s to 16s (slower overall)
-        const animationDelay = `${Math.random() * 8}s`; // Delay 0s to 8s
-        const zIndex = Math.floor(Math.random() * 2); // z-index 0 or 1 (keep behind content)
-        const opacity = Math.random() * 0.5 + 0.15; // Slightly higher minimum opacity (0.15 to 0.65)
+        const size = Math.random() * 22 + 10; // Size range 10px to 32px
+        const top = `${Math.random() * 105 - 5}%`; // Allow slightly off-screen start/end
+        const left = `${Math.random() * 105 - 5}%`;
+        const animationDuration = `${Math.random() * 12 + 7}s`; // Duration 7s to 19s
+        const animationDelay = `${Math.random() * 10}s`; // Delay 0s to 10s
+        const zIndex = 0; // Keep all background icons behind content
+        const opacity = Math.random() * 0.4 + 0.2; // Opacity 0.2 to 0.6
 
         let colorClass = '';
         let animationClass = '';
 
-        // Assign colors and animations based on icon type
         switch (IconComponent) {
             case Heart:
-                colorClass = 'text-primary/40'; // Slightly more visible pink
-                animationClass = 'animate-float';
+                // Use different shades of pink/primary/accent for hearts
+                const heartColorRand = Math.random();
+                if (heartColorRand < 0.4) {
+                    colorClass = 'text-primary/30';
+                } else if (heartColorRand < 0.7) {
+                    colorClass = 'text-primary/45';
+                } else {
+                    colorClass = 'text-accent/25'; // Touch of coral
+                }
+                animationClass = Math.random() < 0.7 ? 'animate-float' : 'animate-twinkle'; // Some hearts twinkle too
                 break;
             case Star:
-                colorClass = 'text-accent/50'; // Slightly more visible coral/gold
+                colorClass = 'text-accent/40'; // Slightly brighter stars
                 animationClass = 'animate-twinkle';
                 break;
-            case BookOpen:
-                 colorClass = 'text-secondary-foreground/25'; // Muted secondary color
-                 animationClass = 'animate-float'; // Can use float or a new slow drift
-                 break;
-            case Pencil:
-                 colorClass = 'text-muted-foreground/30'; // Muted greyish
-                 animationClass = 'animate-twinkle'; // Can use twinkle or drift
-                 break;
-            case GraduationCap:
-                colorClass = 'text-foreground/20'; // Very subtle foreground
-                animationClass = 'animate-float';
-                break;
-            default:
+            default: // Fallback, though shouldn't be needed with current setup
                  colorClass = 'text-muted-foreground/20';
                  animationClass = 'animate-twinkle';
         }
@@ -83,7 +80,8 @@ const BackgroundAnimation: React.FC = () => {
             animationDelay,
             animationDuration,
             zIndex,
-            opacity: opacity, // Apply random opacity directly
+            opacity: opacity,
+            position: 'absolute', // Ensure position is absolute
           },
           colorClass: colorClass,
           animationClass: animationClass,
@@ -92,12 +90,16 @@ const BackgroundAnimation: React.FC = () => {
       setIcons(newIcons);
     };
 
-     generateIcons(); // Generate on mount
+     generateIcons();
 
-  }, [isClient]); // Depend on isClient
+     // Optional: Regenerate icons periodically for more dynamic feel (can be performance intensive)
+     // const interval = setInterval(generateIcons, 30000); // Regenerate every 30 seconds
+     // return () => clearInterval(interval);
+
+  }, [isClient]);
 
   if (!isClient) {
-    return null; // Render nothing on the server
+    return null;
   }
 
   return (
@@ -105,10 +107,10 @@ const BackgroundAnimation: React.FC = () => {
       {icons.map(({ id, icon: Icon, style, colorClass, animationClass }) => (
         <Icon
           key={id}
-          className={`lucide absolute ${colorClass} ${animationClass}`}
+          className={`lucide ${colorClass} ${animationClass}`} // Removed absolute here, handled by style
           style={style}
-          fill="currentColor"
-          strokeWidth={Icon === Heart || Icon === Star ? 0 : 0.5} // Add thin stroke to study icons
+          fill="currentColor" // Fill hearts and stars
+          strokeWidth={0} // No stroke for cleaner look
         />
       ))}
     </div>

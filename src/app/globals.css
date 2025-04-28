@@ -6,27 +6,28 @@
   :root {
     /* Pastel Theme based on user request */
     --background: 300 100% 99%; /* Very light lavender */
-    --foreground: 340 10% 25%; /* Dark muted pink */
+    --foreground: 340 10% 35%; /* Slightly lighter dark muted pink for better readability */
 
     --card: 340 100% 97%; /* Lighter pink */
-    --card-foreground: 340 10% 25%;
+    --card-foreground: 340 10% 30%; /* Darker card text */
 
     --popover: 340 100% 97%;
     --popover-foreground: 340 10% 25%;
 
     --primary: 350 100% 85%; /* Soft Pink #FFB6C1 - Adjusted HSL */
     --primary-foreground: 340 40% 10%; /* Darker Pink for contrast */
+    --primary-highlight: 350 100% 75%; /* Brighter Pink for heading highlight */
 
     --secondary: 240 60% 97%; /* Light Lavender #E6E6FA - Adjusted HSL */
     --secondary-foreground: 240 20% 30%;
 
     --muted: 240 20% 95%; /* Slightly darker lavender */
-    --muted-foreground: 240 10% 50%;
+    --muted-foreground: 240 10% 55%; /* Lighter muted text */
 
     --accent: 5 80% 75%;   /* Coral #FF8A80 - Adjusted HSL */
     --accent-foreground: 5 40% 15%;
 
-    --destructive: 0 84.2% 60.2%;
+    --destructive: 0 84.2% 60.2%; /* Default red */
     --destructive-foreground: 0 0% 98%;
 
     --border: 350 60% 90%; /* Lighter pink border */
@@ -65,6 +66,8 @@
 
     --primary: 350 90% 70%; /* Brighter pink for dark mode */
     --primary-foreground: 350 20% 10%;
+    --primary-highlight: 350 100% 80%; /* Even brighter highlight for dark */
+
 
     --secondary: 240 20% 25%; /* Darker lavender */
     --secondary-foreground: 240 30% 90%;
@@ -120,7 +123,7 @@
   .timeline-item {
     /* Start slightly scaled down and further down */
     @apply opacity-0 transition-all duration-1000 ease-out;
-    transform: translateY(50px) scale(0.95);
+    transform: translateY(60px) scale(0.9); /* Start slightly further down and smaller */
   }
 
   .timeline-item.visible {
@@ -152,10 +155,15 @@
  }
 
   /* Heading Animation Styles */
+  .heading-text-wrapper {
+    position: relative;
+    display: inline-block; /* Or block if needed */
+  }
   .heading-text {
     position: relative;
     display: inline-block;
-    transition: opacity 0.3s ease-out;
+    transition: opacity 0.4s ease-out; /* Slightly slower fade */
+    color: hsl(var(--primary-highlight)); /* Highlight color */
   }
 
   .heading-text.strike::after {
@@ -163,107 +171,148 @@
     position: absolute;
     left: 0;
     right: 0;
-    top: 50%;
-    height: 2px; /* Thickness of strikethrough */
-    background-color: currentColor; /* Use text color for line */
+    top: 55%; /* Adjust vertical position slightly */
+    height: 2.5px; /* Thickness of strikethrough */
+    background-color: hsl(var(--destructive)); /* Use destructive (red) color for line */
     transform: scaleX(0);
     transform-origin: left;
-    animation: strike-through 0.5s ease-out forwards;
+    animation: strike-through 0.5s ease-out 0.1s forwards; /* Add slight delay */
   }
 
    .heading-text.final {
      animation: fade-in-text 0.5s ease-out forwards;
    }
 
+    /* Interactive Letter Styles */
+    .interactive-word {
+      @apply relative inline-block cursor-pointer transition-all duration-300 ease-out text-primary hover:text-accent hover:scale-105;
+      text-shadow: 1px 1px 3px hsla(var(--primary), 0.2); /* Subtle shadow */
+    }
+
+    .interactive-word::after {
+      content: '💖'; /* Heart emoji */
+      position: absolute;
+      font-size: 0.7em;
+      opacity: 0;
+      transition: opacity 0.3s ease-out, transform 0.3s ease-out;
+      transform: translateY(5px) scale(0.5);
+      pointer-events: none; /* Prevent emoji from blocking hover */
+       /* Position randomly around the word */
+      top: -60%;
+      left: 50%;
+       transform: translate(-50%, 5px) scale(0.5);
+    }
+
+     .interactive-word:hover::after {
+       opacity: 1;
+       transform: translate(-50%, -5px) scale(1); /* Move up and scale */
+     }
+
 }
 
 @layer utilities {
   /* Fade-in Animation (General) */
   @keyframes fade-in {
-    from { opacity: 0; transform: translateY(10px); }
+    from { opacity: 0; transform: translateY(15px); } /* Start slightly lower */
     to { opacity: 1; transform: translateY(0); }
   }
   .animate-fade-in {
-    animation: fade-in 0.8s ease-out forwards;
+    animation: fade-in 0.9s ease-out forwards; /* Slightly longer */
   }
 
    /* Fade-in for replacement text */
    @keyframes fade-in-text {
-    from { opacity: 0; }
-    to { opacity: 1; }
+    from { opacity: 0; transform: scale(0.95); } /* Add slight scale */
+    to { opacity: 1; transform: scale(1); }
   }
 
   /* Strikethrough Animation */
   @keyframes strike-through {
-    0% { transform: scaleX(0); }
-    100% { transform: scaleX(1); }
+    0% { transform: scaleX(0); transform-origin: left;}
+    100% { transform: scaleX(1); transform-origin: left;}
   }
 
 
   /* Background Animations */
   @keyframes float {
-    0%, 100% { transform: translateY(0) rotate(0deg); opacity: 0.6; }
-    50% { transform: translateY(-20px) rotate(8deg); opacity: 0.9; }
+    0%, 100% { transform: translateY(0) rotate(-2deg); opacity: 0.5; } /* Add slight constant rotation */
+    50% { transform: translateY(-25px) rotate(10deg); opacity: 0.8; } /* Increase movement */
   }
 
   @keyframes twinkle {
-    0%, 100% { opacity: 0.2; transform: scale(0.8); }
-    50% { opacity: 0.7; transform: scale(1); }
+    0%, 100% { opacity: 0.15; transform: scale(0.75); } /* Slightly less dim */
+    50% { opacity: 0.6; transform: scale(1.05); } /* Slightly larger peak */
   }
 
   .animate-float {
-    animation: float 6s ease-in-out infinite; /* Slower, smoother float */
+    animation: float 7s ease-in-out infinite alternate; /* Add alternate direction */
   }
 
   .animate-twinkle {
-    animation: twinkle 4s ease-in-out infinite; /* Slower twinkle */
+    animation: twinkle 4.5s ease-in-out infinite; /* Slightly faster twinkle */
   }
 
    /* Countdown Flip Animations */
    @keyframes flip-down {
     0% {
       transform: rotateX(0deg);
+      opacity: 1;
+    }
+    50% {
+       opacity: 1; /* Keep visible during first half */
     }
     100% {
-      transform: rotateX(-90deg); /* Correct direction */
+      transform: rotateX(-90deg);
+      opacity: 0; /* Fade out as it flips */
     }
   }
 
    @keyframes flip-up {
     0% {
       transform: rotateX(90deg);
+       opacity: 0; /* Start faded */
     }
+     50% {
+        opacity: 1; /* Fade in during flip */
+     }
     100% {
       transform: rotateX(0deg);
+      opacity: 1;
     }
   }
 
   .animate-flip-down {
-    animation: flip-down 0.5s ease-in-out forwards; /* Slightly faster */
+    animation: flip-down 0.5s ease-in forwards; /* Faster flip */
     backface-visibility: hidden;
     transform-origin: bottom;
   }
 
    .animate-flip-up {
-     animation: flip-up 0.5s ease-in-out 0s forwards; /* Match flip-down */
+     animation: flip-up 0.5s ease-out 0s forwards; /* Use ease-out */
      backface-visibility: hidden;
      transform-origin: top;
   }
 
    /* Balloon Animations */
    @keyframes balloon-float {
-      0%, 100% { transform: translateY(0) rotate(-3deg); }
-      50% { transform: translateY(-30px) rotate(5deg); }
+      0%, 100% { transform: translateY(0) rotate(-4deg) scale(1); } /* Add subtle scale */
+      50% { transform: translateY(-35px) rotate(6deg) scale(1.05); } /* More movement */
     }
 
+    @keyframes balloon-sway {
+       0%, 100% { transform: translateX(0); }
+       50% { transform: translateX(10px); }
+     }
+
+
    .animate-balloon-float-1 {
-      animation: balloon-float 7s ease-in-out infinite;
+      animation: balloon-float 7s ease-in-out infinite, balloon-sway 3s ease-in-out infinite alternate 0.2s; /* Add sway */
    }
    .animate-balloon-float-2 {
-       animation: balloon-float 9s ease-in-out infinite 0.5s; /* Different duration and delay */
+       animation: balloon-float 9s ease-in-out infinite 0.5s, balloon-sway 3.5s ease-in-out infinite alternate 0.5s; /* Different duration and delay */
    }
     .animate-balloon-float-3 {
-       animation: balloon-float 8s ease-in-out infinite 1s; /* Different duration and delay */
+       animation: balloon-float 8s ease-in-out infinite 1s, balloon-sway 3.2s ease-in-out infinite alternate 0.8s; /* Different duration and delay */
    }
 
 
