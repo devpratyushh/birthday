@@ -8,7 +8,7 @@ interface TimeLeft {
   days: number;
   hours: number;
   minutes: number;
-  seconds: number;
+  // Removed seconds
 }
 
 interface CountdownProps {
@@ -16,6 +16,7 @@ interface CountdownProps {
   onComplete: () => void;
 }
 
+// Calculate time left, ensuring seconds are handled internally for accuracy
 const calculateTimeLeft = (target: number): TimeLeft | null => {
   const difference = target - Date.now();
 
@@ -23,11 +24,16 @@ const calculateTimeLeft = (target: number): TimeLeft | null => {
     return null;
   }
 
+  // Still calculate seconds internally to accurately determine when a minute flips
+  const totalSeconds = Math.floor(difference / 1000);
+  const days = Math.floor(totalSeconds / (60 * 60 * 24));
+  const hours = Math.floor((totalSeconds / (60 * 60)) % 24);
+  const minutes = Math.floor((totalSeconds / 60) % 60);
+
   return {
-    days: Math.floor(difference / (1000 * 60 * 60 * 24)),
-    hours: Math.floor((difference / (1000 * 60 * 60)) % 24),
-    minutes: Math.floor((difference / (1000 * 60)) % 60),
-    seconds: Math.floor((difference / 1000) % 60),
+    days,
+    hours,
+    minutes,
   };
 };
 
@@ -36,6 +42,7 @@ interface FlipUnitProps {
   label: string;
 }
 
+// Memoized FlipUnit component remains largely the same
 const FlipUnit: React.FC<FlipUnitProps> = memo(({ currentValue, label }) => {
   const [isFlipping, setIsFlipping] = useState(false);
   const previousValueRef = useRef(currentValue);
@@ -58,11 +65,12 @@ const FlipUnit: React.FC<FlipUnitProps> = memo(({ currentValue, label }) => {
      }
 
     setIsFlipping(true);
+    // Animation duration should match CSS animation time
     const timer = setTimeout(() => {
       setDisplayValue(currentValue); // Update display value after flip starts visually
       previousValueRef.current = currentValue; // Update previous value ref
       setIsFlipping(false); // End the flipping state *after* visual update
-    }, 490); // Animation duration is 0.5s
+    }, 490); // Near the end of the 0.5s animation
 
     return () => clearTimeout(timer);
   }, [currentValue, hasMounted]);
@@ -111,7 +119,7 @@ const FlipUnit: React.FC<FlipUnitProps> = memo(({ currentValue, label }) => {
             "top-1/2 h-1/2 rounded-b-lg bg-primary/80 text-primary-foreground pt-1 items-start", // Align to top edge
             "origin-top transform-style-3d backface-hidden",
              // Apply flip-up animation *only when flipping*
-            isFlipping ? 'animate-flip-up' : 'transform rotate-x-90' // Start flipped up if not animating
+            isFlipping ? 'animate-flip-up' : 'transform rotate-x-90', // Start flipped up if not animating
           )}
           style={{ zIndex: 2 }} // Ensure it's behind the top flip but above static
            key={`${label}-bottom-flip-${currentValue}`} // Key helps react detect change
@@ -141,29 +149,27 @@ export const Countdown: React.FC<CountdownProps> = ({ targetDate, onComplete }) 
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
-    setIsClient(true);
-    const initialTime = calculateTimeLeft(targetTime);
-    setCurrentTimeLeft(initialTime);
+    setIsClient(true); // Ensures this runs only on the client
 
-    if (initialTime === null) {
-      console.log("Countdown initial check detected completion.");
-      onComplete(); // Call immediately if already past
-      return;
-    }
+    const checkTime = () => {
+        const timeLeft = calculateTimeLeft(targetTime);
+        setCurrentTimeLeft(timeLeft);
 
-    // Set up the interval
-    intervalRef.current = setInterval(() => {
-      const newTimeLeft = calculateTimeLeft(targetTime);
-      setCurrentTimeLeft(newTimeLeft);
-
-      if (newTimeLeft === null) {
-        console.log("Countdown interval detected completion.");
-        onComplete();
-        if (intervalRef.current) {
-          clearInterval(intervalRef.current);
+        if (timeLeft === null) {
+            console.log("Countdown check detected completion.");
+            onComplete();
+            if (intervalRef.current) {
+                 clearInterval(intervalRef.current);
+            }
         }
-      }
-    }, 1000); // Update every second
+    };
+
+    checkTime(); // Initial check
+
+    // Set up the interval only if not already completed
+    if (calculateTimeLeft(targetTime) !== null) {
+        intervalRef.current = setInterval(checkTime, 1000); // Update every second
+    }
 
     // Cleanup function
     return () => {
@@ -177,9 +183,10 @@ export const Countdown: React.FC<CountdownProps> = ({ targetDate, onComplete }) 
 
   if (!isClient || currentTimeLeft === null) {
     // Render placeholders or nothing while hydrating or if completed
+    // Updated to only show placeholders for days, hours, minutes
     return (
         <div className="flex justify-center items-start space-x-2 sm:space-x-4 md:space-x-6 p-4">
-            {(['days', 'hours', 'minutes', 'seconds']).map((label) => (
+            {(['days', 'hours', 'minutes']).map((label) => (
                 <div key={label} className="flex flex-col items-center text-center w-16 h-24 md:w-24 md:h-32">
                      <div className="relative w-full h-full bg-primary/10 rounded-lg flex flex-col">
                          <div className="h-1/2 w-full bg-primary/20 rounded-t-lg"></div>
@@ -196,6 +203,7 @@ export const Countdown: React.FC<CountdownProps> = ({ targetDate, onComplete }) 
 
 
   return (
+      // Updated to map only over days, hours, minutes
       <div className="flex justify-center items-start space-x-2 sm:space-x-4 md:space-x-6 p-4">
         {(Object.keys(currentTimeLeft) as Array<keyof TimeLeft>).map((interval) => (
           <FlipUnit

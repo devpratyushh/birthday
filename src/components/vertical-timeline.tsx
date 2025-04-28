@@ -5,7 +5,7 @@ import React, { useEffect, useRef } from 'react';
 import Image from 'next/image';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
-import { BookOpen, GraduationCap, Pencil, Heart, Gift, Handshake, MessageSquare, Clock, Package } from 'lucide-react'; // Added Package for pouch exchange
+import { BookOpen, GraduationCap, Pencil, Heart, Gift, Handshake, MessageSquare, Clock, Package } from 'lucide-react';
 
 interface TimelineEvent {
   date: string;
@@ -50,8 +50,6 @@ export const VerticalTimeline: React.FC<VerticalTimelineProps> = ({ events }) =>
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
             entry.target.classList.add('visible');
-            // Optional: Unobserve after animation to save resources
-            // observer.unobserve(entry.target);
           } else {
              // Optional: Remove class if you want animation to replay on scroll up
              // entry.target.classList.remove('visible');
@@ -93,25 +91,24 @@ export const VerticalTimeline: React.FC<VerticalTimelineProps> = ({ events }) =>
             </CardHeader>
             <CardContent className="flex-grow flex flex-col p-4 pt-0">
               {event.imageUrl ? (
-                 <div className="relative w-full aspect-video mb-3 rounded-md overflow-hidden group"> {/* Added group class */}
+                 <div className="relative w-full aspect-video mb-3 rounded-md overflow-hidden group">
                   <Image
-                    src={event.imageUrl}
+                    src={event.imageUrl} // Using placeholder URL
                     alt={event.title}
-                    fill // Use fill layout
-                    sizes="(max-width: 768px) 100vw, 350px" // Responsive sizes
-                    style={{ objectFit: 'cover' }} // Ensure image covers the area
+                    fill
+                    sizes="(max-width: 768px) 100vw, 350px"
+                    style={{ objectFit: 'cover' }}
                     className="transition-transform duration-300 group-hover:scale-105"
                     placeholder="blur"
-                    blurDataURL="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==" // Simple blur placeholder
+                    blurDataURL="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg=="
                     onError={(e) => {
-                      // Fallback logic if image fails to load
                       const target = e.target as HTMLImageElement;
-                      target.style.display = 'none'; // Hide broken image element
+                      target.style.display = 'none';
                       const parent = target.parentElement;
-                      if (parent && !parent.querySelector('.placeholder-text')) { // Prevent adding multiple placeholders
+                      if (parent && !parent.querySelector('.placeholder-text')) {
                         parent.classList.add('bg-secondary', 'flex', 'items-center', 'justify-center');
                         const placeholderText = document.createElement('p');
-                        placeholderText.className = 'text-xs text-muted-foreground placeholder-text'; // Added class
+                        placeholderText.className = 'text-xs text-muted-foreground placeholder-text';
                         placeholderText.textContent = `Image not found: ${event.title}`;
                         parent.appendChild(placeholderText);
                       }

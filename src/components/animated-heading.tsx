@@ -8,17 +8,30 @@ import { Heart } from 'lucide-react';
 const AnimatedHeading: React.FC = () => {
   const [displayText, setDisplayText] = useState('Anandita');
   const [isFadingOut, setIsFadingOut] = useState(false);
+  const [showStrikethrough, setShowStrikethrough] = useState(true);
 
   useEffect(() => {
-    const timeoutId = setTimeout(() => {
+    const strikethroughDuration = 500; // Duration of strikethrough animation in ms
+    const fadeDuration = 400; // Duration of fade animation in ms
+    const delayBeforeFade = 1800; // Delay before starting the fade out (should align with strikethrough animation end)
+
+    // Timer to start fade out after the strikethrough animation is supposed to finish
+    const fadeTimeoutId = setTimeout(() => {
       setIsFadingOut(true); // Start fade out
+
+      // Timer to change text and fade back in
       setTimeout(() => {
         setDisplayText('Babe');
-        setIsFadingOut(false); // Reset fading state after text changes
-      }, 400); // Duration of fade-out animation
-    }, 2000); // Delay before starting the animation
+        setShowStrikethrough(false); // Hide strikethrough for "Babe"
+        setIsFadingOut(false); // Reset fading state to trigger fade-in
+      }, fadeDuration); // Wait for fade-out to finish
 
-    return () => clearTimeout(timeoutId);
+    }, delayBeforeFade); // Start fade slightly after strikethrough starts
+
+    // Cleanup timeouts on component unmount
+    return () => {
+      clearTimeout(fadeTimeoutId);
+    };
   }, []);
 
   return (
@@ -29,13 +42,20 @@ const AnimatedHeading: React.FC = () => {
       </h1>
        <p className="text-lg md:text-xl text-muted-foreground animate-fade-in animation-delay-300 font-serif relative inline-block">
          To my dearest{' '}
-         <span className="inline-block relative">
-           {/* Strikethrough element */}
-           {displayText === 'Anandita' && (
-             <span className="strikethrough-animated absolute left-0 top-1/2 w-full h-[2px] bg-destructive origin-left"></span>
-           )}
-           {/* Animated text change */}
-           <span className={cn(isFadingOut ? 'animate-fade-out-up' : 'animate-fade-in-down', 'inline-block')}>
+         <span className="inline-block relative h-8"> {/* Ensure container has height */}
+           {/* Text container */}
+           <span
+             className={cn(
+               'absolute inset-0 flex items-center justify-center transition-opacity duration-400', // Center text vertically
+               isFadingOut ? 'animate-fade-out-up opacity-0' : 'animate-fade-in-down opacity-100',
+               'inline-block'
+             )}
+             style={{ animationFillMode: 'forwards' }} // Keep end state of animation
+           >
+              {/* Strikethrough element - only shown for Anandita */}
+             {showStrikethrough && (
+                <span className="strikethrough-animated absolute left-0 top-1/2 w-full h-[2px] bg-destructive origin-left"></span>
+             )}
              {displayText}
            </span>
          </span>
@@ -46,54 +66,12 @@ const AnimatedHeading: React.FC = () => {
 };
 
 // Add animation-delay helper and other styles if not present in Tailwind config or globals.css
+// Ensure globals.css has the necessary keyframes (fade-in, pulse, strikethrough, fade-out-up, fade-in-down)
 const styles = `
 .animation-delay-300 { animation-delay: 300ms; }
-
-@keyframes pulse {
-  50% {
-    opacity: .6;
-    transform: scale(1.05);
-  }
-}
-.animate-pulse {
-  animation: pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-}
-
-@keyframes fade-in {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-.animate-fade-in {
-  animation: fade-in 0.8s ease-out forwards;
-}
-
-@keyframes strikethrough {
-  0% { width: 0; }
-  100% { width: 100%; }
-}
-.strikethrough-animated {
-   animation: strikethrough 0.5s ease-out forwards 1.8s; /* Added delay */
-   /* Removed position: absolute and after pseudo-element logic */
-}
-
-@keyframes fade-out-up {
-  from { opacity: 1; transform: translateY(0); }
-  to { opacity: 0; transform: translateY(-10px); }
-}
-.animate-fade-out-up {
-  animation: fade-out-up 0.4s ease-out forwards;
-}
-
-@keyframes fade-in-down {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-.animate-fade-in-down {
-  animation: fade-in-down 0.4s ease-in forwards;
-}
 `;
 if (typeof window !== 'undefined') {
-  const styleSheetId = 'animated-heading-styles';
+  const styleSheetId = 'animated-heading-styles-inline'; // Use a different ID if needed
   if (!document.getElementById(styleSheetId)) {
       const styleSheet = document.createElement("style");
       styleSheet.id = styleSheetId;
@@ -105,3 +83,4 @@ if (typeof window !== 'undefined') {
 
 
 export default AnimatedHeading;
+

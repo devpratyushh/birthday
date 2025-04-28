@@ -3,18 +3,14 @@
 
 import { useState, useEffect } from 'react';
 import { Countdown } from '@/components/countdown';
-import { VerticalTimeline } from '@/components/vertical-timeline';
+import { VerticalTimeline } from '@/components/vertical-timeline'; // Use VerticalTimeline
 import BirthdayLetter from '@/components/birthday-letter';
 import BackgroundAnimation from '@/components/background-animation';
 import { Separator } from '@/components/ui/separator';
 import AnimatedHeading from '@/components/animated-heading';
 
 // Define the target date: April 30th, 2025, 00:00:00 IST
-// Note: JavaScript Date month is 0-indexed, so April is 3.
-// IST is UTC+5:30
-// April 30, 2025 00:00:00 IST === April 29, 2025 18:30:00 UTC
-// Use Date.UTC to avoid timezone issues during initialization
-const targetDate = new Date(Date.UTC(2025, 3, 29, 18, 30, 0)); // Month 3 is April
+const targetDate = new Date(Date.UTC(2025, 3, 29, 18, 30, 0)); // April 30, 2025 00:00 IST = April 29, 2025 18:30 UTC
 
 // --- Letter Content ---
 const letterContent = `
@@ -30,49 +26,49 @@ Ik Anandita this is not the prettiest letter one could give neither this is the 
 // --- End Letter Content ---
 
 
-// --- Timeline Events ---
+// --- Timeline Events (Using placeholder images) ---
 const timelineEvents = [
   {
     date: "Unexpected Day",
     title: "First Encounter",
     description: "The day life changed when I unexpectedly met someone special (very gora!) in school.",
-    imageUrl: "https://picsum.photos/seed/1/300/180"
+    imageUrl: "https://picsum.photos/seed/encounter/400/250" // Placeholder
   },
   {
     date: "A Few Days Later",
     title: "The Confession",
     description: "Gathered the courage to confess my feelings, drawn by something magical about you.",
-     imageUrl: "https://picsum.photos/seed/2/300/180"
+     imageUrl: "https://picsum.photos/seed/confession/400/250" // Placeholder
   },
     {
     date: "Late Night Talks",
     title: "All Night Conversation",
     description: "Even though the proposal didn't go as planned, we talked the entire night. The start of many long conversations.",
-    imageUrl: "https://picsum.photos/seed/3/300/180"
+    imageUrl: "https://picsum.photos/seed/talks/400/250" // Placeholder
   },
   {
     date: "Exam Season",
     title: "High School Romance Begins",
     description: "Whispering 'Btw Hi', asking 'cafe hai kya?', exchanging pouches, and sharing chocolates during exams. The best month!",
-   imageUrl: "https://picsum.photos/seed/4/300/180"
+   imageUrl: "https://picsum.photos/seed/romance/400/250" // Placeholder
   },
     {
     date: "Study Sessions",
     title: "ITF & English Lit Chats",
     description: "Finding excuses to talk, like teaching ITF or discussing English literature... leading to 4-hour chats!",
-    imageUrl: "https://picsum.photos/seed/5/300/180"
+    imageUrl: "https://picsum.photos/seed/study/400/250" // Placeholder
   },
   {
     date: "Now",
     title: "From 'You & Me' to 'Us'",
     description: "It's been a journey, but nothing compared to the one ahead. Holding your hand, once and for all.",
-    imageUrl: "https://picsum.photos/seed/6/300/180"
+    imageUrl: "https://picsum.photos/seed/us/400/250" // Placeholder
   },
     {
     date: "April 30th, 2025",
     title: "Happy Birthday!",
     description: "Celebrating the first of many birthdays together. Welcome to adulting! Love youuuu babe!",
-    imageUrl: "https://picsum.photos/seed/7/300/180"
+    imageUrl: "https://picsum.photos/seed/birthday/400/250" // Placeholder
   },
 ];
 // --- End Timeline Events ---
@@ -85,11 +81,10 @@ export default function Home() {
    useEffect(() => {
        // Safely check the date on the client after hydration
        const checkDate = () => {
-           // Check if current date is on or after the target date
            if (new Date() >= targetDate) {
                setIsBirthdayTime(true);
            } else {
-                setIsBirthdayTime(false); // Explicitly set to false if before target date
+                setIsBirthdayTime(false);
            }
        };
        checkDate(); // Check immediately on mount
@@ -101,18 +96,16 @@ export default function Home() {
                 if (new Date() >= targetDate) {
                     console.log("Target date reached via interval check!");
                     setIsBirthdayTime(true);
-                    if(intervalId) clearInterval(intervalId); // Clear interval once target date is reached
+                    if(intervalId) clearInterval(intervalId);
                 }
-            }, 1000 * 30); // Check every 30 seconds should be sufficient
+            }, 1000 * 30); // Check every 30 seconds
         }
-
 
        // Cleanup interval on component unmount
        return () => {
            if (intervalId) clearInterval(intervalId);
        };
    }, []); // Empty dependency array ensures this runs only once on the client after mount
-
 
    // Function to be called by Countdown when it finishes
    const handleCountdownComplete = () => {
@@ -133,7 +126,6 @@ export default function Home() {
 
              {/* Countdown */}
              <div className="my-8 md:my-12">
-                {/* Pass targetDate as a prop */}
                 <Countdown targetDate={targetDate} onComplete={handleCountdownComplete} />
              </div>
 
@@ -146,14 +138,14 @@ export default function Home() {
              </h2>
 
              {/* Vertical Timeline */}
-             <div className="w-full max-w-4xl px-4"> {/* Added padding for small screens */}
-                <VerticalTimeline events={timelineEvents} />
+             <div className="w-full max-w-4xl px-4">
+                <VerticalTimeline events={timelineEvents} /> {/* Use VerticalTimeline */}
              </div>
 
            </>
          ) : (
             // Render BirthdayLetter only after client-side check confirms it's time
-             isBirthdayTime && <BirthdayLetter letterContent={letterContent} />
+            <BirthdayLetter letterContent={letterContent} />
          )}
        </div>
     </main>
