@@ -4,53 +4,53 @@
 
 @layer base {
   :root {
-    /* Pastel Theme based on user request */
-    --background: 300 100% 99%; /* Very light lavender */
-    --foreground: 340 10% 35%; /* Slightly lighter dark muted pink for better readability */
+    /* Refined Pastel Theme - Lighter background, softer contrasts */
+    --background: 300 100% 99.5%; /* Even lighter lavender */
+    --foreground: 340 15% 40%; /* Slightly darker, muted pink for text */
 
-    --card: 340 100% 97%; /* Lighter pink */
-    --card-foreground: 340 10% 30%; /* Darker card text */
+    --card: 340 100% 98%; /* Very light pink card */
+    --card-foreground: 340 15% 35%; /* Darker card text for readability */
 
-    --popover: 340 100% 97%;
-    --popover-foreground: 340 10% 25%;
+    --popover: 340 100% 98%;
+    --popover-foreground: 340 15% 30%;
 
-    --primary: 350 100% 85%; /* Soft Pink #FFB6C1 - Adjusted HSL */
-    --primary-foreground: 340 40% 10%; /* Darker Pink for contrast */
-    --primary-highlight: 350 100% 75%; /* Brighter Pink for heading highlight */
+    --primary: 350 100% 88%; /* Softer Pink #FFC4CE - Adjusted HSL */
+    --primary-foreground: 340 50% 15%; /* Darker Pink for contrast on primary */
+    --primary-highlight: 350 100% 78%; /* Brighter Pink for heading highlight */
 
-    --secondary: 240 60% 97%; /* Light Lavender #E6E6FA - Adjusted HSL */
-    --secondary-foreground: 240 20% 30%;
+    --secondary: 240 60% 98%; /* Very Light Lavender #F0F0FF */
+    --secondary-foreground: 240 25% 40%; /* Muted lavender text */
 
-    --muted: 240 20% 95%; /* Slightly darker lavender */
-    --muted-foreground: 240 10% 55%; /* Lighter muted text */
+    --muted: 240 30% 96%; /* Slightly darker soft lavender */
+    --muted-foreground: 240 15% 60%; /* Lighter muted text */
 
-    --accent: 5 80% 75%;   /* Coral #FF8A80 - Adjusted HSL */
-    --accent-foreground: 5 40% 15%;
+    --accent: 5 85% 80%;   /* Softer Coral #FFACA5 */
+    --accent-foreground: 5 50% 20%; /* Darker accent text */
 
-    --destructive: 0 84.2% 60.2%; /* Default red */
+    --destructive: 0 84.2% 60.2%; /* Keep default red for destructive actions */
     --destructive-foreground: 0 0% 98%;
 
-    --border: 350 60% 90%; /* Lighter pink border */
-    --input: 240 20% 95%;
-    --ring: 350 100% 85%; /* Soft pink for focus rings */
+    --border: 350 70% 92%; /* Soft pink border */
+    --input: 240 30% 96%; /* Muted lavender input */
+    --ring: 350 100% 88%; /* Soft pink for focus rings */
 
-    --chart-1: 350 70% 70%;
-    --chart-2: 240 50% 80%;
-    --chart-3: 5 70% 80%;
-    --chart-4: 45 70% 75%; /* Adding a soft yellow */
-    --chart-5: 160 50% 80%; /* Adding a soft teal */
+    --chart-1: 350 75% 75%;
+    --chart-2: 240 55% 85%;
+    --chart-3: 5 75% 85%;
+    --chart-4: 45 75% 80%; /* Soft yellow */
+    --chart-5: 160 55% 85%; /* Soft teal */
 
     --radius: 0.75rem; /* Slightly more rounded */
 
      /* Sidebar - Keep default or adjust if needed later */
-    --sidebar-background: 0 0% 98%;
-    --sidebar-foreground: 240 5.3% 26.1%;
-    --sidebar-primary: 240 5.9% 10%;
+    --sidebar-background: 0 0% 98.5%; /* Slightly lighter default */
+    --sidebar-foreground: 240 6% 30%;
+    --sidebar-primary: 240 6% 15%;
     --sidebar-primary-foreground: 0 0% 98%;
-    --sidebar-accent: 240 4.8% 95.9%;
-    --sidebar-accent-foreground: 240 5.9% 10%;
-    --sidebar-border: 220 13% 91%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    --sidebar-accent: 240 5% 96%;
+    --sidebar-accent-foreground: 240 6% 10%;
+    --sidebar-border: 220 15% 92%; /* Softer border */
+    --sidebar-ring: 217.2 91.2% 59.8%; /* Keep blue ring for now */
   }
 
   .dark {
@@ -108,7 +108,7 @@
     @apply border-border;
   }
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground; /* Ensure base text uses foreground */
      font-feature-settings: "rlig" 1, "calt" 1;
      scroll-behavior: smooth; /* Add smooth scrolling */
   }
@@ -158,12 +158,13 @@
   .heading-text-wrapper {
     position: relative;
     display: inline-block; /* Or block if needed */
+    color: hsl(var(--foreground)); /* Base color */
   }
   .heading-text {
     position: relative;
     display: inline-block;
     transition: opacity 0.4s ease-out; /* Slightly slower fade */
-    color: hsl(var(--primary-highlight)); /* Highlight color */
+    color: hsl(var(--primary-highlight)); /* Highlight color for the name */
   }
 
   .heading-text.strike::after {
@@ -180,6 +181,7 @@
   }
 
    .heading-text.final {
+     color: hsl(var(--primary-highlight)); /* Ensure final text also has highlight */
      animation: fade-in-text 0.5s ease-out forwards;
    }
 
@@ -235,21 +237,21 @@
 
   /* Background Animations */
   @keyframes float {
-    0%, 100% { transform: translateY(0) rotate(-2deg); opacity: 0.5; } /* Add slight constant rotation */
-    50% { transform: translateY(-25px) rotate(10deg); opacity: 0.8; } /* Increase movement */
+    0%, 100% { transform: translateY(0) rotate(-3deg); opacity: 0.6; } /* Slightly softer rotation and opacity */
+    50% { transform: translateY(-28px) rotate(8deg); opacity: 0.9; } /* Increased movement slightly */
   }
 
   @keyframes twinkle {
-    0%, 100% { opacity: 0.15; transform: scale(0.75); } /* Slightly less dim */
-    50% { opacity: 0.6; transform: scale(1.05); } /* Slightly larger peak */
+    0%, 100% { opacity: 0.2; transform: scale(0.8); } /* Dimmer start/end */
+    50% { opacity: 0.7; transform: scale(1.1); } /* Brighter, larger peak */
   }
 
   .animate-float {
-    animation: float 7s ease-in-out infinite alternate; /* Add alternate direction */
+    animation: float 8s ease-in-out infinite alternate; /* Slower float */
   }
 
   .animate-twinkle {
-    animation: twinkle 4.5s ease-in-out infinite; /* Slightly faster twinkle */
+    animation: twinkle 5s ease-in-out infinite; /* Slower twinkle */
   }
 
    /* Countdown Flip Animations */

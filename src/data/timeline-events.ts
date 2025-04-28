@@ -1,5 +1,5 @@
 
-import { Heart, MessageSquare, Sparkles, Pencil, Gift, Calendar, GraduationCap } from 'lucide-react'; // Removed BookOpen
+import { Heart, MessageSquare, Sparkles, Pencil, Gift, Users, Cake, LucideProps } from 'lucide-react'; // Added Users, Cake
 
 // Define the structure for a timeline event
 export interface TimelineEvent {
@@ -7,13 +7,23 @@ export interface TimelineEvent {
   date: string; // Keep as string for display flexibility
   title: string;
   description: string;
-  icon?: React.ElementType; // Optional specific icon
+  icon?: React.ElementType<LucideProps>; // Optional specific icon
   imageUrl?: string; // Optional image URL
 }
 
-// Placeholder image base URL - using picsum.photos for variety
-const placeholderImageUrl = (seed: number, width = 400, height = 225) =>
+// Placeholder image base URL - using picsum.photos for variety if needed
+const placeholderImageUrl = (seed: number | string, width = 400, height = 225) =>
   `https://picsum.photos/seed/${seed}/${width}/${height}`;
+
+// Direct Imgur links based on provided albums
+const imgurLinks = [
+    "https://i.imgur.com/pL3JRJy.jpeg", // First Encounter
+    "https://i.imgur.com/o8gR9r5.jpeg", // Confession
+    "https://i.imgur.com/FkUjH7s.jpeg", // Whispers & Cafe Dreams
+    "https://i.imgur.com/L1m0k5o.jpeg", // Study Buddies
+    "https://i.imgur.com/rAnDOmN.jpeg", // Pouch Exchange (Assuming link 5 was this one)
+    "https://i.imgur.com/9mEzAqY.jpeg", // You and Me to Us (Using link 6 image)
+];
 
 export const timelineEvents: TimelineEvent[] = [
   {
@@ -22,7 +32,7 @@ export const timelineEvents: TimelineEvent[] = [
     title: 'First Encounter 👀',
     description: 'The day our paths crossed unexpectedly at the sarkari school. A simple "ye aage kyu hai?" started it all.',
     icon: Heart,
-    imageUrl: placeholderImageUrl(101),
+    imageUrl: imgurLinks[0],
   },
    {
     id: 2,
@@ -30,7 +40,7 @@ export const timelineEvents: TimelineEvent[] = [
     title: 'The Confession & Late Night Talks 💬',
     description: 'Took a leap of faith (maybe too soon!) but it led to hours of conversation, even if the "proposal" flopped.',
     icon: MessageSquare,
-    imageUrl: placeholderImageUrl(102),
+    imageUrl: imgurLinks[1],
   },
   {
     id: 3,
@@ -38,7 +48,7 @@ export const timelineEvents: TimelineEvent[] = [
     title: 'Whispers & Cafe Dreams ☕',
     description: 'From shy "Btw Hi" whispers to "cafe hai kya?" moments, building memories one interaction at a time.',
     icon: Sparkles,
-    imageUrl: placeholderImageUrl(103),
+    imageUrl: imgurLinks[2],
   },
   {
     id: 4,
@@ -46,7 +56,7 @@ export const timelineEvents: TimelineEvent[] = [
     title: 'Study Buddies & Chocolate Breaks 🍫',
     description: 'Stressing about exams but finding joy in shared chocolates and study sessions (like ITF & English Lit!).',
     icon: Pencil,
-    imageUrl: placeholderImageUrl(104),
+    imageUrl: imgurLinks[3],
   },
    {
     id: 5,
@@ -54,23 +64,30 @@ export const timelineEvents: TimelineEvent[] = [
     title: 'The Pouch Exchange ✨',
     description: 'A small but significant exchange that holds a special place in our story.',
     icon: Gift,
-    imageUrl: placeholderImageUrl(105),
+    imageUrl: imgurLinks[4],
   },
-  // Removed JEE Aspirant card (id: 6)
+   {
+    id: 6, // New Card ID
+    date: 'Gradually...',
+    title: 'From You and Me to Us ❤️',
+    description: 'The journey wasn\'t instant, but every shared moment, every laugh, every hurdle overcome, brought us closer, transforming "you" and "me" into "us".',
+    icon: Users, // Icon representing partnership/togetherness
+    imageUrl: imgurLinks[5], // Use the 6th image for this new card
+   },
    {
     id: 7, // Renumbered ID
     date: 'April 30th, 2025',
-    title: 'Happy Birthday! 🎉',
-    description: 'Celebrating you today! Welcome to adulting, may your year be filled with joy and success. ',
-    icon: GraduationCap, // Using GraduationCap to signify reaching a milestone (adulthood)
-    imageUrl: placeholderImageUrl(107),
+    title: 'Happy Birthday! 🎂',
+    description: 'Celebrating you today! Welcome to adulting, may your year be filled with joy, love, and success. ',
+    icon: Cake, // Using Cake icon
+    imageUrl: placeholderImageUrl("birthdaycake", 400, 225), // Placeholder for a cake image
   },
    {
     id: 8, // Renumbered ID
     date: 'The Future...',
-    title: 'Our Life Together ❤️',
-    description: 'Looking forward to countless more memories, adventures, nok-jhok, and celebrating life side-by-side.',
+    title: 'Our Life Together Continues 💖',
+    description: 'Looking forward to countless more memories, adventures, nok-jhok, and celebrating life side-by-side, holding hands forever.',
     icon: Heart,
-    imageUrl: placeholderImageUrl(108),
+    imageUrl: placeholderImageUrl("futurelove", 400, 225), // Keep placeholder or update later
   },
 ];

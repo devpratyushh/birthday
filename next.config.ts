@@ -16,6 +16,12 @@ const nextConfig: NextConfig = {
         port: '',
         pathname: '/**',
       },
+      {
+        protocol: 'https',
+        hostname: 'i.imgur.com', // Added Imgur domain
+        port: '',
+        pathname: '/**',
+      }
     ],
   },
   // Remove output: 'export' if present, as it conflicts with the standard dev server
