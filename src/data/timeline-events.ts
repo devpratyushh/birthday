@@ -1,5 +1,5 @@
 
-import { Heart, MessageSquare, Sparkles, Pencil, Gift, Users, Cake, LucideProps } from 'lucide-react'; // Added Users, Cake
+import { Heart, MessageSquare, Sparkles, Pencil, Gift, Users, Cake, LucideProps, Flower2 } from 'lucide-react'; // Added Users, Cake, Flower2
 
 // Define the structure for a timeline event
 export interface TimelineEvent {
@@ -15,14 +15,14 @@ export interface TimelineEvent {
 const placeholderImageUrl = (seed: number | string, width = 400, height = 225) =>
   `https://picsum.photos/seed/${seed}/${width}/${height}`;
 
-// Direct Imgur links based on provided albums
+// Correct Direct Imgur links (extracted from previous history / assumed from albums)
 const imgurLinks = [
-    "https://i.imgur.com/pL3JRJy.jpeg", // First Encounter
-    "https://i.imgur.com/o8gR9r5.jpeg", // Confession
-    "https://i.imgur.com/FkUjH7s.jpeg", // Whispers & Cafe Dreams
-    "https://i.imgur.com/L1m0k5o.jpeg", // Study Buddies
-    "https://i.imgur.com/rAnDOmN.jpeg", // Pouch Exchange (Assuming link 5 was this one)
-    "https://i.imgur.com/9mEzAqY.jpeg", // You and Me to Us (Using link 6 image)
+    "https://i.imgur.com/pL3JRJy.jpeg", // Album 1: First Encounter
+    "https://i.imgur.com/o8gR9r5.jpeg", // Album 2: Confession
+    "https://i.imgur.com/FkUjH7s.jpeg", // Album 3: Whispers & Cafe Dreams
+    "https://i.imgur.com/L1m0k5o.jpeg", // Album 4: Study Buddies
+    "https://i.imgur.com/rAnDOmN.jpeg", // Album 5: Pouch Exchange
+    "https://i.imgur.com/9mEzAqY.jpeg", // Album 6: You and Me to Us
 ];
 
 export const timelineEvents: TimelineEvent[] = [
@@ -59,23 +59,23 @@ export const timelineEvents: TimelineEvent[] = [
     imageUrl: imgurLinks[3],
   },
    {
-    id: 5,
-    date: 'Around the Same Time',
-    title: 'The Pouch Exchange ✨',
-    description: 'A small but significant exchange that holds a special place in our story.',
-    icon: Gift,
-    imageUrl: imgurLinks[4],
-  },
-   {
-    id: 6, // New Card ID
+    id: 5, // Renumbered ID - This becomes "You and me to Us"
     date: 'Gradually...',
     title: 'From You and Me to Us ❤️',
     description: 'The journey wasn\'t instant, but every shared moment, every laugh, every hurdle overcome, brought us closer, transforming "you" and "me" into "us".',
     icon: Users, // Icon representing partnership/togetherness
-    imageUrl: imgurLinks[5], // Use the 6th image for this new card
+    imageUrl: imgurLinks[5], // Use the 6th image (index 5) for this new card
    },
    {
-    id: 7, // Renumbered ID
+    id: 6, // Renumbered ID - This becomes "Pouch Exchange"
+    date: 'Around the Same Time',
+    title: 'The Pouch Exchange ✨',
+    description: 'A small but significant exchange that holds a special place in our story.',
+    icon: Gift,
+    imageUrl: imgurLinks[4], // Use the 5th image (index 4) for this card
+  },
+   {
+    id: 7,
     date: 'April 30th, 2025',
     title: 'Happy Birthday! 🎂',
     description: 'Celebrating you today! Welcome to adulting, may your year be filled with joy, love, and success. ',
@@ -83,11 +83,11 @@ export const timelineEvents: TimelineEvent[] = [
     imageUrl: placeholderImageUrl("birthdaycake", 400, 225), // Placeholder for a cake image
   },
    {
-    id: 8, // Renumbered ID
+    id: 8,
     date: 'The Future...',
     title: 'Our Life Together Continues 💖',
     description: 'Looking forward to countless more memories, adventures, nok-jhok, and celebrating life side-by-side, holding hands forever.',
-    icon: Heart,
+    icon: Flower2, // Using Flower2 icon for future/growth
     imageUrl: placeholderImageUrl("futurelove", 400, 225), // Keep placeholder or update later
   },
 ];

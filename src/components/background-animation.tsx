@@ -11,11 +11,12 @@ interface AnimatedIcon {
   animationClass: string;
 }
 
-// Prioritize hearts, add some stars and flowers
+// Prioritize hearts, add some stars and flowers - Increased hearts and flowers
 const ICON_PRIORITY = [
-    Heart, Heart, Heart, Star, Heart, Flower2, Heart, Heart,
-    Heart, Heart, Star, Heart, Flower2, Heart, Heart, Heart, Star,
-    Heart, Flower2, Heart, Heart, Heart, Star, Heart, Heart,
+    Heart, Heart, Flower2, Heart, Star, Heart, Flower2, Heart, Heart,
+    Heart, Heart, Star, Heart, Flower2, Heart, Heart, Heart, Star, Heart,
+    Flower2, Heart, Heart, Flower2, Heart, Star, Heart, Heart, Flower2, Heart,
+    Heart, Star, Heart, Flower2, Heart, Heart, Heart, Flower2, Heart, Star,
 ];
 
 const BackgroundAnimation: React.FC = () => {
@@ -36,7 +37,7 @@ const BackgroundAnimation: React.FC = () => {
       for (let i = 0; i < numIcons; i++) {
         const IconComponent = ICON_PRIORITY[i % iconTypesCount];
 
-        const size = Math.random() * 20 + 8; // Size range 8px to 28px (slightly smaller average)
+        const size = Math.random() * 20 + 8; // Size range 8px to 28px
         const top = `${Math.random() * 105 - 5}%`; // Allow slightly off-screen start/end
         const left = `${Math.random() * 105 - 5}%`;
         const animationDuration = `${Math.random() * 13 + 8}s`; // Duration 8s to 21s
@@ -51,27 +52,27 @@ const BackgroundAnimation: React.FC = () => {
             case Heart:
                 // Use different shades of pink/primary/accent for hearts
                 const heartColorRand = Math.random();
-                if (heartColorRand < 0.5) {
-                    colorClass = 'text-primary/40'; // More prominent pink
-                } else if (heartColorRand < 0.8) {
+                if (heartColorRand < 0.6) { // Increase chance of primary pink
+                    colorClass = 'text-primary/40';
+                } else if (heartColorRand < 0.9) {
                     colorClass = 'text-primary/55';
                 } else {
                     colorClass = 'text-accent/35'; // Brighter coral touch
                 }
-                animationClass = Math.random() < 0.6 ? 'animate-float' : 'animate-twinkle'; // More float than twinkle
+                animationClass = Math.random() < 0.7 ? 'animate-float' : 'animate-twinkle'; // More float than twinkle
                 break;
             case Star:
-                colorClass = 'text-secondary/40'; // Soft lavender stars
+                colorClass = 'text-secondary/30'; // Soft lavender stars, slightly less prominent
                 animationClass = 'animate-twinkle';
                 break;
-             case Flower2:
+             case Flower2: // Rose/Flower icon
                  const flowerColorRand = Math.random();
                  if (flowerColorRand < 0.5) {
-                    colorClass = 'text-secondary/35'; // Lavender flowers
+                    colorClass = 'text-secondary/40'; // Lavender flowers
                  } else {
-                    colorClass = 'text-accent/30'; // Coral flowers
+                    colorClass = 'text-accent/40'; // Coral/Pinkish flowers
                  }
-                animationClass = Math.random() < 0.5 ? 'animate-float' : 'animate-twinkle'; // Mix of float/twinkle
+                animationClass = Math.random() < 0.6 ? 'animate-float' : 'animate-twinkle'; // Mix of float/twinkle
                 break;
             default:
                  colorClass = 'text-muted-foreground/20';
