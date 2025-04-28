@@ -3,7 +3,7 @@
 
 import { useState, useEffect } from 'react';
 import { Countdown } from '@/components/countdown';
-import { VerticalTimeline } from '@/components/vertical-timeline';
+import { VerticalTimeline } from '@/components/vertical-timeline'; // Changed import
 import BirthdayLetter from '@/components/birthday-letter';
 import BackgroundAnimation from '@/components/background-animation';
 import { timelineEvents } from '@/data/timeline-events';
@@ -95,7 +95,7 @@ export default function Home() {
         <BackgroundAnimation />
         <div className="z-10 w-full max-w-4xl text-center">
           {/* Simple loading state */}
-          <div className="text-xl text-muted-foreground">Loading Pookie's Surprise...</div>
+          <div className="text-xl text-muted-foreground">Loading my love's Surprise...</div>
         </div>
       </main>
     );
@@ -124,7 +124,7 @@ export default function Home() {
                  's Birthday Surprise!
                </h1>
                <p className="text-lg md:text-xl text-foreground mb-8 animate-fade-in" style={{ animationDelay: '0.2s' }}>
-                 Happy Birthdayy Pookieee!! 🎉
+                 Happy Birthdayy my love!! 🎉
                </p>
                <div className="relative w-full flex justify-center mt-4"> {/* Container for countdown and balloons */}
                  {/* Balloons - Positioned around the countdown */}
@@ -160,7 +160,7 @@ export default function Home() {
        {/* Optional Footer - Adjusted margin */}
        {!showLetter && (
          <footer className="z-10 mt-20 md:mt-28 text-center text-muted-foreground text-sm animate-fade-in" style={{ animationDelay: '0.6s' }}>
-           Made with love for my Pookie ❤️
+           Made with love for my love ❤️
          </footer>
        )}
     </main>

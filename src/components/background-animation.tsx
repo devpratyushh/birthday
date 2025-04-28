@@ -12,20 +12,24 @@ interface AnimatedIcon {
 }
 
 // Prioritize hearts VERY heavily, make them larger and more numerous
+// Increased hearts to ~90 out of 100
 const ICON_PRIORITY = [
     Heart, Heart, Heart, Heart, Heart, Heart, Heart, Heart, Heart, Heart, // 10 Hearts
     Heart, Heart, Heart, Heart, Heart, Heart, Heart, Heart, Heart, Heart, // 20 Hearts
     Heart, Heart, Heart, Heart, Heart, Heart, Heart, Heart, Heart, Heart, // 30 Hearts
     Heart, Heart, Heart, Heart, Heart, Heart, Heart, Heart, Heart, Heart, // 40 Hearts
     Heart, Heart, Heart, Heart, Heart, Heart, Heart, Heart, Heart, Heart, // 50 Hearts
-    Heart, Heart, Heart, Heart, Heart, Heart, Heart, Heart, Heart, Heart, // 60 Hearts!
-    Star, Flower2, Star, Flower2, Star, Flower2, Star, Flower2 // 8 Others (very low frequency)
+    Heart, Heart, Heart, Heart, Heart, Heart, Heart, Heart, Heart, Heart, // 60 Hearts
+    Heart, Heart, Heart, Heart, Heart, Heart, Heart, Heart, Heart, Heart, // 70 Hearts
+    Heart, Heart, Heart, Heart, Heart, Heart, Heart, Heart, Heart, Heart, // 80 Hearts
+    Heart, Heart, Heart, Heart, Heart, Heart, Heart, Heart, Heart, Heart, // 90 Hearts!
+    Star, Flower2, Star, Flower2, Star, Flower2, Star, Flower2, Star, Flower2 // 10 Others
 ];
 
 const BackgroundAnimation: React.FC = () => {
   const [icons, setIcons] = useState<AnimatedIcon[]>([]);
   const [isClient, setIsClient] = useState(false);
-  const numIcons = 68; // Increased total number for density, matching ICON_PRIORITY length
+  const numIcons = 100; // Increased total number for density, matching ICON_PRIORITY length
 
   useEffect(() => {
     setIsClient(true);
@@ -42,18 +46,21 @@ const BackgroundAnimation: React.FC = () => {
 
         let size;
         if (IconComponent === Heart) {
-          size = Math.random() * 35 + 25; // Hearts: 25px to 60px (Even Larger Range)
+          // Significantly larger hearts: 35px to 75px
+          size = Math.random() * 40 + 35;
         } else {
-          size = Math.random() * 15 + 5; // Others: 5px to 20px (Smaller)
+          // Slightly larger others: 8px to 25px
+          size = Math.random() * 17 + 8;
         }
 
-        const top = `${Math.random() * 110 - 10}%`; // Allow further off-screen start/end
-        const left = `${Math.random() * 110 - 10}%`;
-        const animationDuration = `${Math.random() * 12 + 10}s`; // Duration 10s to 22s (Slower, more graceful float)
-        const animationDelay = `${Math.random() * 18}s`; // Delay 0s to 18s (More variation)
+        const top = `${Math.random() * 115 - 15}%`; // Allow further off-screen start/end
+        const left = `${Math.random() * 115 - 15}%`;
+        // Slightly slower animations: 12s to 25s
+        const animationDuration = `${Math.random() * 13 + 12}s`;
+        const animationDelay = `${Math.random() * 20}s`; // Wider delay range
         const zIndex = 0; // Keep all background icons behind content
-         // Hearts more opaque, others less - INCREASED OPACITY
-        const opacity = IconComponent === Heart ? (Math.random() * 0.4 + 0.55) : (Math.random() * 0.3 + 0.25); // Hearts: 0.55 to 0.95 opacity, Others: 0.25 to 0.55
+         // Hearts more opaque, others less - INCREASED OPACITY AGAIN
+        const opacity = IconComponent === Heart ? (Math.random() * 0.35 + 0.60) : (Math.random() * 0.3 + 0.30); // Hearts: 0.60 to 0.95 opacity, Others: 0.30 to 0.60
 
         let colorClass = '';
         let animationClass = '';
@@ -62,30 +69,30 @@ const BackgroundAnimation: React.FC = () => {
             case Heart:
                 // Use more prominent pinks and corals for hearts
                  const heartColorRand = Math.random();
-                if (heartColorRand < 0.5) {
-                    colorClass = 'text-primary/85'; // Main pink, more opaque
-                } else if (heartColorRand < 0.85) {
-                    colorClass = 'text-accent/75'; // Coral touch, good opacity
+                if (heartColorRand < 0.6) { // More primary pink
+                    colorClass = 'text-primary/90'; // Main pink, very opaque
+                } else if (heartColorRand < 0.9) { // More accent coral
+                    colorClass = 'text-accent/80'; // Coral touch, high opacity
                 } else {
-                    colorClass = 'text-primary-highlight/65'; // Brighter highlight pink, medium opacity
+                    colorClass = 'text-primary-highlight/75'; // Brighter highlight pink, good opacity
                 }
                 animationClass = 'animate-float'; // Hearts always float
                 break;
             case Star:
-                colorClass = 'text-secondary/50'; // Soft lavender stars, slightly more visible
+                colorClass = 'text-secondary/60'; // Soft lavender stars, slightly more visible
                 animationClass = 'animate-twinkle';
                 break;
              case Flower2: // Rose/Flower icon
                  const flowerColorRand = Math.random();
                  if (flowerColorRand < 0.5) {
-                    colorClass = 'text-secondary/60'; // Lavender flowers, more visible
+                    colorClass = 'text-secondary/65'; // Lavender flowers, more visible
                  } else {
-                    colorClass = 'text-accent/60'; // Coral/Pinkish flowers, more visible
+                    colorClass = 'text-accent/65'; // Coral/Pinkish flowers, more visible
                  }
                 animationClass = Math.random() < 0.3 ? 'animate-float' : 'animate-twinkle'; // Mostly twinkle
                 break;
             default:
-                 colorClass = 'text-muted-foreground/30'; // Very subtle default, slightly more visible
+                 colorClass = 'text-muted-foreground/40'; // Very subtle default, slightly more visible
                  animationClass = 'animate-twinkle';
         }
 
@@ -114,7 +121,7 @@ const BackgroundAnimation: React.FC = () => {
      generateIcons();
 
      // Regenerate periodically for a more dynamic feel (optional)
-     const interval = setInterval(generateIcons, 22000); // Regenerate every 22 seconds
+     const interval = setInterval(generateIcons, 25000); // Regenerate every 25 seconds (matches longest animation duration)
      return () => clearInterval(interval); // Cleanup interval
 
   }, [isClient]);
@@ -132,7 +139,7 @@ const BackgroundAnimation: React.FC = () => {
           style={style}
           // Fill hearts and flowers, stroke stars
           fill={Icon === Star ? "none" : "currentColor"}
-          strokeWidth={Icon === Star ? 0.4 : 0} // Even thinner stroke for stars
+          strokeWidth={Icon === Star ? 0.3 : 0} // Even thinner stroke for stars
         />
       ))}
     </div>

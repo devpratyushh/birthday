@@ -8,7 +8,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 // Function to add interactive spans around specific words
 const makeInteractive = (text: string) => {
   const interactiveWords = [
-      "cutieee", "pookieee", "kuchupuchuuuu", "jaaan", "love", "magical",
+      "cutieee", "my love", "kuchupuchuuuu", "jaaan", "love", "magical", // Replaced pookieee
       "mine", "us", "funnn", "babe", "pouch", "Situaa", "💗" // Add more words as needed
     ];
   const regex = new RegExp(`\\b(${interactiveWords.join('|')})\\b`, 'gi');
@@ -16,7 +16,9 @@ const makeInteractive = (text: string) => {
   const parts = text.split(regex);
 
   return parts.map((part, index) => {
-    if (interactiveWords.includes(part.toLowerCase())) {
+    // Check if the exact part (case-insensitive) is in the list
+    const lowerPart = part.toLowerCase();
+    if (interactiveWords.some(word => word.toLowerCase() === lowerPart)) {
       return <span key={index} className="interactive-word">{part}</span>;
     }
     return part;
@@ -26,7 +28,7 @@ const makeInteractive = (text: string) => {
 
 const BirthdayLetter: React.FC = () => {
   const letterContent = [
-      "Hailo Hailoo! Hailoo to my cutieee pookieee kuchupuchuuuu, Hiii Anandita, kaisi hai meri jaaan!",
+      "Hailo Hailoo! Hailoo to my cutieee my love kuchupuchuuuu, Hiii Anandita, kaisi hai meri jaaan!", // Replaced pookieee
       "Dur dur se udte udte khabar aai hai ki aaj kisi ka bday and to humne v socha ki thoda Happie Happie Birthdayyy hum v bol dee anddd yoo welcome to adulting, life’s gonna change a lot for both of us in the next couple of years, so brace yourself for all the fun things life has to offer – Oh shitt I sound like sandeep maheshwari but from chor bazaar lol (tried to be funny part 1 😂)",
       "Life has never been same since I unexpectedly met someone (very gora) in my sarkari school and things aren’t the same since the first “ye aage kyu hai” to you yelling “pandittt”, My love, this pandit has been touched by your embrace and couldn’t thank god enough for this cozzz – “Rab ne bana di jodi”.",
       "From the very first time I saw you to that confession in just two days, there was something magical about you which drew me more and more towards you, talking an entire night even though my “proposal” didn’t work out as I expected. Wait.. I know my expectations were crazy to go and ask out someone who I have just met but you know Anandita there was something about you which made me believe that if i did the right efforts and right things i would have you, i would call you “mine” and look here we are – from you and me to us, It has been a long journey but nothing in front of the journey we have ahead of us and I wish to hold your hand, to hold your hand “once and for all”.",
