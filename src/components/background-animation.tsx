@@ -11,18 +11,19 @@ interface AnimatedIcon {
   animationClass: string;
 }
 
-// Prioritize hearts, add some stars and flowers - Increased hearts and flowers
+// Prioritize hearts heavily, add some stars and flowers - Significantly increased hearts
 const ICON_PRIORITY = [
-    Heart, Heart, Flower2, Heart, Star, Heart, Flower2, Heart, Heart,
-    Heart, Heart, Star, Heart, Flower2, Heart, Heart, Heart, Star, Heart,
-    Flower2, Heart, Heart, Flower2, Heart, Star, Heart, Heart, Flower2, Heart,
-    Heart, Star, Heart, Flower2, Heart, Heart, Heart, Flower2, Heart, Star,
+    Heart, Heart, Heart, Flower2, Heart, Star, Heart, Heart, Heart, Heart,
+    Heart, Heart, Heart, Star, Heart, Flower2, Heart, Heart, Heart, Heart, Heart,
+    Heart, Flower2, Heart, Heart, Star, Heart, Heart, Heart, Flower2, Heart, Heart,
+    Heart, Star, Heart, Flower2, Heart, Heart, Heart, Heart, Heart, Heart, Star, Heart,
+    Flower2, Heart, Heart, Heart, Heart, Flower2, Heart, Star, Heart, Heart, Heart, Heart,
 ];
 
 const BackgroundAnimation: React.FC = () => {
   const [icons, setIcons] = useState<AnimatedIcon[]>([]);
   const [isClient, setIsClient] = useState(false);
-  const numIcons = 60; // Increased number for denser effect
+  const numIcons = 80; // Increased number for a denser effect with more hearts
 
   useEffect(() => {
     setIsClient(true);
@@ -37,13 +38,13 @@ const BackgroundAnimation: React.FC = () => {
       for (let i = 0; i < numIcons; i++) {
         const IconComponent = ICON_PRIORITY[i % iconTypesCount];
 
-        const size = Math.random() * 20 + 8; // Size range 8px to 28px
-        const top = `${Math.random() * 105 - 5}%`; // Allow slightly off-screen start/end
-        const left = `${Math.random() * 105 - 5}%`;
-        const animationDuration = `${Math.random() * 13 + 8}s`; // Duration 8s to 21s
-        const animationDelay = `${Math.random() * 12}s`; // Delay 0s to 12s
+        const size = Math.random() * 18 + 6; // Slightly smaller range for density (6px to 24px)
+        const top = `${Math.random() * 110 - 10}%`; // Allow further off-screen start/end
+        const left = `${Math.random() * 110 - 10}%`;
+        const animationDuration = `${Math.random() * 15 + 10}s`; // Duration 10s to 25s (slower overall)
+        const animationDelay = `${Math.random() * 15}s`; // Delay 0s to 15s
         const zIndex = 0; // Keep all background icons behind content
-        const opacity = Math.random() * 0.45 + 0.15; // Opacity 0.15 to 0.6
+        const opacity = Math.random() * 0.4 + 0.1; // Opacity 0.1 to 0.5 (Subtler)
 
         let colorClass = '';
         let animationClass = '';
@@ -52,30 +53,30 @@ const BackgroundAnimation: React.FC = () => {
             case Heart:
                 // Use different shades of pink/primary/accent for hearts
                 const heartColorRand = Math.random();
-                if (heartColorRand < 0.6) { // Increase chance of primary pink
-                    colorClass = 'text-primary/40';
+                if (heartColorRand < 0.75) { // Higher chance of primary pink
+                    colorClass = 'text-primary/40'; // Main pink, semi-transparent
                 } else if (heartColorRand < 0.9) {
-                    colorClass = 'text-primary/55';
+                    colorClass = 'text-primary/55'; // Slightly darker pink
                 } else {
-                    colorClass = 'text-accent/35'; // Brighter coral touch
+                    colorClass = 'text-accent/30'; // Softer coral touch, more transparent
                 }
-                animationClass = Math.random() < 0.7 ? 'animate-float' : 'animate-twinkle'; // More float than twinkle
+                animationClass = Math.random() < 0.8 ? 'animate-float' : 'animate-twinkle'; // Mostly float
                 break;
             case Star:
-                colorClass = 'text-secondary/30'; // Soft lavender stars, slightly less prominent
+                colorClass = 'text-secondary/25'; // Soft lavender stars, even less prominent
                 animationClass = 'animate-twinkle';
                 break;
              case Flower2: // Rose/Flower icon
                  const flowerColorRand = Math.random();
                  if (flowerColorRand < 0.5) {
-                    colorClass = 'text-secondary/40'; // Lavender flowers
+                    colorClass = 'text-secondary/35'; // Lavender flowers, bit more visible
                  } else {
-                    colorClass = 'text-accent/40'; // Coral/Pinkish flowers
+                    colorClass = 'text-accent/35'; // Coral/Pinkish flowers
                  }
-                animationClass = Math.random() < 0.6 ? 'animate-float' : 'animate-twinkle'; // Mix of float/twinkle
+                animationClass = Math.random() < 0.5 ? 'animate-float' : 'animate-twinkle'; // Equal mix
                 break;
             default:
-                 colorClass = 'text-muted-foreground/20';
+                 colorClass = 'text-muted-foreground/15'; // Very subtle default
                  animationClass = 'animate-twinkle';
         }
 
@@ -103,9 +104,9 @@ const BackgroundAnimation: React.FC = () => {
 
      generateIcons();
 
-     // Optional: Regenerate icons periodically for more dynamic feel (can be performance intensive)
-     // const interval = setInterval(generateIcons, 30000); // Regenerate every 30 seconds
-     // return () => clearInterval(interval);
+     // Regenerate periodically for a more dynamic feel (optional, can impact performance)
+     const interval = setInterval(generateIcons, 25000); // Regenerate every 25 seconds
+     return () => clearInterval(interval); // Cleanup interval
 
   }, [isClient]);
 
@@ -120,9 +121,9 @@ const BackgroundAnimation: React.FC = () => {
           key={id}
           className={`lucide ${colorClass} ${animationClass}`}
           style={style}
-          // Fill hearts and flowers, but not stars (or use stroke for stars)
+          // Fill hearts and flowers, stroke stars
           fill={Icon === Star ? "none" : "currentColor"}
-          strokeWidth={Icon === Star ? 1 : 0} // Add stroke only to stars for a different look
+          strokeWidth={Icon === Star ? 0.5 : 0} // Thinner stroke for stars
         />
       ))}
     </div>
