@@ -4,7 +4,7 @@
 import React, { useEffect, useRef } from 'react';
 import Image from 'next/image';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { BookOpen, GraduationCap, Heart, Pencil, Calendar, Cake, Users, MessageSquare, Sparkles, Gift } from 'lucide-react'; // Import relevant icons
+import { BookOpen, GraduationCap, Heart, Pencil, Calendar, Cake, Users, MessageSquare, Sparkles, Gift, Flower2 } from 'lucide-react'; // Import relevant icons, added Flower2 explicitly
 import type { TimelineEvent } from '@/data/timeline-events'; // Import type
 
 interface VerticalTimelineProps {
@@ -23,6 +23,7 @@ const getIconForEvent = (title: string): React.ElementType => {
   if (lowerTitle.includes('birthday') || lowerTitle.includes('cake')) return Cake;
   if (lowerTitle.includes('school') || lowerTitle.includes('class')) return BookOpen;
   if (lowerTitle.includes('graduate') || lowerTitle.includes('result')) return GraduationCap;
+  if (lowerTitle.includes('future') || lowerTitle.includes('continues')) return Flower2; // Added mapping for Flower2
   return Calendar; // Default icon
 };
 
@@ -88,6 +89,12 @@ export const VerticalTimeline: React.FC<VerticalTimelineProps> = ({ events }) =>
               <div className={`absolute top-5 left-4 md:left-1/2 w-8 h-8 rounded-full bg-accent border-4 border-background flex items-center justify-center -translate-x-1/2 z-10 shadow-md transition-transform duration-300 group-hover:scale-110`}>
                 <IconComponent className="w-4 h-4 text-accent-foreground" />
               </div>
+
+              {/* Decorative Hearts */}
+               <Heart className={`absolute w-3 h-3 text-primary/30 animate-float ${isOdd ? 'top-2 -right-2 md:-left-6' : 'top-2 -left-2 md:-right-6'} opacity-0 group-[.visible]:opacity-100 transition-opacity duration-1000 delay-500`} style={{ animationDuration: '14s', animationDelay: `${0.1 + index * 0.1}s` }} fill="currentColor" />
+               <Heart className={`absolute w-4 h-4 text-accent/40 animate-twinkle ${isOdd ? 'bottom-4 -right-4 md:left-[-4rem]' : 'bottom-4 -left-4 md:right-[-4rem]'} opacity-0 group-[.visible]:opacity-100 transition-opacity duration-1000 delay-700`} style={{ animationDuration: '8s', animationDelay: `${0.3 + index * 0.1}s` }} fill="currentColor" />
+               <Flower2 className={`absolute w-3 h-3 text-secondary/30 animate-float ${isOdd ? 'top-1/3 -right-5 md:left-[-3rem]' : 'top-1/3 -left-5 md:right-[-3rem]'} opacity-0 group-[.visible]:opacity-100 transition-opacity duration-1000 delay-600`} style={{ animationDuration: '16s', animationDelay: `${0.2 + index * 0.15}s` }} fill="currentColor" />
+
 
               {/* Content Card */}
               <div className={`w-full md:w-[calc(50%-2rem)] ${isOdd ? 'md:pl-0 md:pr-8' : 'md:pl-8 md:pr-0'} pl-12 md:pl-0`}>

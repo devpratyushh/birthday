@@ -20,7 +20,7 @@ const placeholderImageUrl = (seed: number | string, width = 400, height = 225) =
 export const timelineEvents: TimelineEvent[] = [
   {
     id: 1,
-    date: 'Somewhere in 2022', // Changed year from 2025 to 2022 as requested (assuming this was the intent)
+    date: 'Somewhere in 2025', // Changed year from 2022 to 2025
     title: 'First Encounter 👀',
     description: 'The day our paths crossed unexpectedly at the sarkari school. A simple "ye aage kyu hai?" started it all.',
     icon: Heart,
@@ -64,7 +64,7 @@ export const timelineEvents: TimelineEvent[] = [
     title: 'The Pouch Exchange ✨',
     description: 'A small but significant exchange that holds a special place in our story.',
     icon: Gift,
-    imageUrl: "https://i.imgur.com/WicaBr7.jpeg", // Image originally for #6 (Corrected URL)
+    imageUrl: "https://i.imgur.com/WicaBr7.jpeg", // Image originally for #6 (Corrected URL from webp)
   },
    {
     id: 7,
@@ -83,4 +83,3 @@ export const timelineEvents: TimelineEvent[] = [
     imageUrl: "https://i.imgur.com/9XybKcE.png", // Image for the last card
   },
 ];
-
