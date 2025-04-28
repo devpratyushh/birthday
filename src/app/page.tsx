@@ -8,11 +8,11 @@ import BackgroundAnimation from '@/components/background-animation';
 import { Separator } from '@/components/ui/separator';
 import { Heart } from 'lucide-react'; // Icon for separator
 
-// Define the target date: April 30th, 2024, 00:00:00 IST
+// Define the target date: April 30th, 2025, 00:00:00 IST
 // Note: JavaScript Date month is 0-indexed, so April is 3.
 // We need to consider the Indian Standard Time (IST) offset UTC+5:30
-// April 30, 2024 00:00:00 IST is April 29, 2024 18:30:00 UTC
-const targetDate = new Date(Date.UTC(2024, 3, 29, 18, 30, 0)); // 3 is April
+// April 30, 2025 00:00:00 IST is April 29, 2025 18:30:00 UTC
+const targetDate = new Date(Date.UTC(2025, 3, 29, 18, 30, 0)); // 3 is April, year updated to 2025
 
 // --- Letter Content (Extracted from request) ---
 const letterContent = `
@@ -67,7 +67,7 @@ const timelineEvents = [
     imageUrl: "https://picsum.photos/400/225?random=6"
   },
     {
-    date: "April 30th",
+    date: "April 30th", // Kept relative, year determined by targetDate
     title: "Happy Birthday, Anandita!",
     description: "Celebrating the first of many birthdays together. Welcome to adulting! Love youuuu babe!",
     imageUrl: "https://picsum.photos/400/225?random=7" // Use a celebratory image
@@ -78,6 +78,7 @@ const timelineEvents = [
 
 export default function Home() {
    // Check initial state based on current time vs target time
+   // Defaults to showing countdown/timeline if target date is in the future
    const [showLetter, setShowLetter] = useState(() => new Date() >= targetDate);
 
    useEffect(() => {
@@ -107,7 +108,7 @@ export default function Home() {
 
       {!showLetter ? (
         <div className="flex flex-col items-center w-full space-y-12 z-10">
-           <h1 className="text-4xl md:text-5xl font-extrabold text-center text-primary drop-shadow-lg mt-8">
+           <h1 className="text-4xl md:text-5xl font-extrabold text-center text-primary drop-shadow-lg mt-8 animate-pulse-text">
             For My Dearest Pookie ❤️
           </h1>
            <Countdown targetDate={targetDate} onComplete={handleCountdownComplete} />
