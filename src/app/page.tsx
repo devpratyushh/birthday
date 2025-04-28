@@ -1,8 +1,8 @@
-"use client";
+'use client';
 
 import { useState, useEffect } from 'react';
 import { Countdown } from '@/components/countdown';
-import { HorizontalTimeline } from '@/components/horizontal-timeline';
+import { VerticalTimeline } from '@/components/vertical-timeline';
 import BirthdayLetter from '@/components/birthday-letter';
 import BackgroundAnimation from '@/components/background-animation';
 import { Separator } from '@/components/ui/separator';
@@ -53,7 +53,7 @@ const timelineEvents = [
     date: "Exam Season",
     title: "High School Romance Begins",
     description: "Whispering 'Btw Hi', asking 'cafe hai kya?', exchanging pouches, and sharing chocolates during exams. The best month!",
-   imageUrl: "https://picsum.photos/300/180?random=4" // Corrected URL
+   imageUrl: "https://picsum.photos/300/180?random=4"
   },
     {
     date: "Study Sessions",
@@ -78,43 +78,65 @@ const timelineEvents = [
 
 
 export default function Home() {
-   // Initialize state based on whether the target date has passed
-   const [isBirthdayTime, setIsBirthdayTime] = useState(() => new Date() >= targetDate);
+   // Use state to track whether the component has mounted on the client
+   const [isClient, setIsClient] = useState(false);
+   // Use state to determine if it's birthday time, initialized based on client-side check
+   const [isBirthdayTime, setIsBirthdayTime] = useState(false);
+
+   useEffect(() => {
+       // This effect runs only on the client after the initial render
+       setIsClient(true);
+       // Now safely check the date
+       const checkDate = () => {
+           if (new Date() >= targetDate) {
+               setIsBirthdayTime(true);
+           }
+       };
+       checkDate(); // Check immediately on mount
+
+       // Set up interval only if it's not birthday time yet
+       let intervalId: NodeJS.Timeout | null = null;
+       if (new Date() < targetDate) {
+           intervalId = setInterval(() => {
+               if (new Date() >= targetDate) {
+                   console.log("Target date reached via interval check!");
+                   setIsBirthdayTime(true);
+                   if(intervalId) clearInterval(intervalId);
+               }
+           }, 1000 * 30); // Check every 30 seconds
+       }
+
+       // Cleanup interval on component unmount
+       return () => {
+           if (intervalId) clearInterval(intervalId);
+       };
+   }, []); // Empty dependency array ensures this runs only once on the client
+
 
    // Function to be called by Countdown when it finishes
    const handleCountdownComplete = () => {
-     console.log("Countdown complete!"); // Add log for debugging
+     console.log("Countdown complete!");
      setIsBirthdayTime(true);
    };
 
-   // Effect to check the date periodically if the birthday hasn't arrived yet.
-   // This handles the case where the page is left open when the time arrives.
-   useEffect(() => {
-    if (!isBirthdayTime) {
-      const intervalId = setInterval(() => {
-        if (new Date() >= targetDate) {
-          console.log("Target date reached via interval check!"); // Add log
-          setIsBirthdayTime(true);
-          clearInterval(intervalId);
-        }
-      }, 1000 * 60); // Check every minute to reduce load
 
-      // Cleanup interval on component unmount
-      return () => clearInterval(intervalId);
-    }
-  }, [isBirthdayTime]); // Re-run effect if isBirthdayTime changes
-
-  // Debugging log
-  // console.log("Target Date:", targetDate.toISOString());
-  // console.log("Current Date:", new Date().toISOString());
-  // console.log("Is Birthday Time:", isBirthdayTime);
-
+  // Avoid rendering the countdown or timeline on the server or before client hydration
+  if (!isClient) {
+     // Render a static placeholder or null during SSR and initial client render
+     // to prevent hydration mismatch
+     return (
+        <main className="flex flex-col items-center justify-start min-h-screen pt-12 md:pt-16 relative overflow-x-hidden">
+            <BackgroundAnimation />
+            {/* Optional: Add a simple loading indicator or skeleton here */}
+        </main>
+     );
+   }
 
   return (
     <main className="flex flex-col items-center justify-start min-h-screen pt-12 md:pt-16 relative overflow-x-hidden">
        <BackgroundAnimation />
 
-       <div className="z-10 w-full flex flex-col items-center">
+       <div className="z-10 w-full flex flex-col items-center px-4">
          {!isBirthdayTime ? (
            <>
              {/* Animated Heading */}
@@ -129,13 +151,13 @@ export default function Home() {
              <Separator className="my-6 md:my-10 max-w-xs md:max-w-sm mx-auto bg-primary/40 h-[2px]" />
 
              {/* Section Title for Timeline */}
-             <h2 className="text-3xl md:text-4xl font-bold text-center text-secondary-foreground mb-4">
+             <h2 className="text-3xl md:text-4xl font-bold text-center text-secondary-foreground mb-8">
                Our Little Journey So Far...
              </h2>
 
-             {/* Horizontal Timeline */}
-             <div className="w-full"> {/* Ensure timeline takes full width */}
-                <HorizontalTimeline events={timelineEvents} />
+             {/* Vertical Timeline */}
+             <div className="w-full max-w-4xl"> {/* Adjust width as needed */}
+                <VerticalTimeline events={timelineEvents} />
              </div>
 
            </>

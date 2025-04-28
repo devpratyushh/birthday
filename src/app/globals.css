@@ -226,8 +226,6 @@ body {
    .animate-flip-up {
        /* Use forwards to maintain the end state */
        animation: flip-up 0.5s ease-out forwards;
-       /* Removed delay, handled by state in component */
-       /* animation-delay: 0.5s; */
    }
 
     /* Utilities for 3D transforms (if not included by default) */
@@ -235,84 +233,147 @@ body {
    .transform-style-3d { transform-style: preserve-3d; }
    .backface-hidden { backface-visibility: hidden; -webkit-backface-visibility: hidden; } /* Add vendor prefix */
 
-
-    /* Horizontal timeline styles */
-   .horizontal-timeline {
-    overflow-x: auto; /* Enable horizontal scroll */
-    overflow-y: hidden; /* Prevent vertical scroll on this element */
-    scrollbar-width: none; /* Firefox */
-    -ms-overflow-style: none; /* IE and Edge */
-    scroll-snap-type: x mandatory; /* Optional: Snap scrolling */
-    scroll-padding-left: 5vw; /* Ensure start padding is respected for snap */
-    scroll-padding-right: 5vw; /* Ensure end padding is respected for snap */
-    position: relative; /* Needed for absolute positioning of line/icons */
-    width: 100vw; /* Take full viewport width */
-    margin-left: -50vw; /* Center trick: move left by half viewport width */
-    left: 50%; /* Center trick: align left edge to center */
-    padding-top: 2rem;
-    padding-bottom: 4rem; /* More space below */
-    /* Remove whitespace nowrap if causing issues with flex gap */
-    /* white-space: nowrap; */ /* Keep items in one line */
-   }
-   .horizontal-timeline::-webkit-scrollbar {
-      display: none; /* Chrome, Safari, Opera */
-   }
-
-    .timeline-content {
-      display: inline-flex; /* Use inline-flex to keep items horizontal and allow gap */
-      gap: 1rem; /* Space between timeline cards */
-      position: relative; /* Context for absolute positioned line/icons */
-      padding-left: 5vw; /* Padding inside the scrolling content */
-      padding-right: 5vw; /* Padding inside the scrolling content */
-      min-width: max-content; /* Ensure container is wide enough for all cards */
-   }
-
-    /* Styles for the central line in horizontal timeline */
-    .horizontal-timeline-line {
-      position: absolute;
-      left: 5vw; /* Start line after left padding */
-      right: 5vw; /* End line before right padding */
-      top: calc(50% + 2rem); /* Adjust vertical position based on padding-top */
-      height: 4px; /* Line thickness */
-      background: linear-gradient(to right, transparent, hsl(var(--primary)/0.4), transparent); /* Faded line */
-      transform: translateY(-50%);
-      z-index: 1; /* Behind cards but visible */
-      pointer-events: none; /* Don't interfere with scrolling */
+   /* --- Vertical Timeline Styles --- */
+    .vertical-timeline {
+        position: relative;
+        padding: 2rem 0;
+        max-width: 900px; /* Adjust max width as needed */
+        margin: 0 auto;
     }
 
-     /* Styles for the icons on the horizontal line */
-    .horizontal-timeline-icon {
-       position: absolute;
-       top: calc(50% + 2rem); /* Match line's vertical position */
-       /* left position will be calculated dynamically via style prop */
-       transform: translate(-50%, -50%); /* Center the icon */
-       background-color: hsl(var(--background));
-       padding: 0.5rem; /* p-2 */
-       border-radius: 9999px; /* rounded-full */
-       border: 2px solid hsl(var(--primary));
-       box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1); /* shadow-md */
-       z-index: 10; /* Above the line and cards */
-       transition: transform 0.3s ease-out;
-       cursor: pointer; /* Indicate interactivity */
+    /* The main timeline line */
+    .vertical-timeline::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 50%;
+        transform: translateX(-50%);
+        height: 100%;
+        width: 4px; /* Line thickness */
+        background: linear-gradient(to bottom, transparent, hsl(var(--primary)/0.6), transparent);
+        z-index: 1;
     }
-     .horizontal-timeline-icon:hover {
-        transform: translate(-50%, -50%) scale(1.1); /* Slightly enlarge on hover */
+
+    /* Container for each timeline item */
+    .timeline-item {
+        position: relative;
+        margin-bottom: 4rem; /* Space between items */
+        width: 50%;
+        z-index: 2;
+        opacity: 0; /* Start hidden for animation */
+        transform: translateY(30px);
+        transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+    }
+
+     /* Animation trigger class */
+    .timeline-item.visible {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    /* Positioning items left and right */
+    .timeline-item:nth-child(odd) {
+        left: 0;
+        padding-right: calc(50% + 30px); /* Space from center line */
+        text-align: right;
+    }
+    .timeline-item:nth-child(even) {
+        left: 50%;
+        padding-left: calc(50% + 30px); /* Space from center line */
+        text-align: left;
+    }
+
+     /* Ensure card content aligns correctly within the container */
+    .timeline-item:nth-child(odd) .timeline-card {
+        margin-left: auto; /* Push card to the right edge of the container */
+        text-align: left; /* Reset text align for card content */
+    }
+     .timeline-item:nth-child(even) .timeline-card {
+        margin-right: auto; /* Push card to the left edge of the container */
+         text-align: left; /* Keep text align for card content */
+    }
+
+    /* The icon/marker on the timeline */
+    .timeline-icon {
+        position: absolute;
+        top: 1rem; /* Adjust vertical alignment */
+        left: 50%;
+        transform: translateX(-50%);
+        width: 40px;
+        height: 40px;
+        background-color: hsl(var(--background));
+        border: 3px solid hsl(var(--primary));
+        border-radius: 50%;
+        z-index: 10;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 0 0 4px hsl(var(--background)), inset 0 2px 0 rgba(0,0,0,0.08), 0 3px 0 4px rgba(0,0,0,0.05);
+        transition: transform 0.3s ease-out;
+    }
+     .timeline-icon:hover {
+       transform: translateX(-50%) scale(1.1);
      }
+     .timeline-item:nth-child(odd) .timeline-icon {
+         /* No change needed, already centered */
+     }
+      .timeline-item:nth-child(even) .timeline-icon {
+        /* No change needed, already centered */
+      }
 
-    /* Ensure cards have width and don't shrink unexpectedly */
-   .timeline-card {
-     flex-shrink: 0; /* Prevent cards from shrinking */
-     width: 300px; /* Fixed width for consistency */
-     max-width: 350px;
-     scroll-snap-align: center; /* Optional: Center card on snap */
-     /* Removed inline-block, flex handles layout */
-     white-space: normal; /* Allow text wrapping inside cards */
-     vertical-align: top; /* Align cards to the top if flex not used*/
-     height: auto; /* Allow card height to adjust to content */
-   }
+     /* Content card */
+    .timeline-card {
+         /* Removed positioning, handled by parent */
+        width: 100%; /* Card takes full width of its parent container */
+        max-width: 350px; /* Max width of the card itself */
+        /* The rest of the styles are applied via ShadCN Card component */
+    }
 
-   /* Removed focus ring and elastic scroll JS-dependent styles for simplification */
-   /* .timeline-focus-ring { ... } */
-   /* .scroll-container { ... } */
-   /* .scroll-content { ... } */
+
+    /* --- Responsive adjustments for smaller screens --- */
+    @media (max-width: 768px) {
+        .vertical-timeline::before {
+            left: 20px; /* Move line to the left */
+             transform: translateX(0);
+        }
+
+        .timeline-item {
+            width: 100%;
+            padding-left: 70px; /* Space from the left line */
+            padding-right: 25px; /* Right padding */
+             text-align: left; /* Force all items left */
+            left: 0 !important; /* Override alternating left */
+            margin-bottom: 3rem;
+        }
+
+        .timeline-item:nth-child(odd),
+        .timeline-item:nth-child(even) {
+            left: 0;
+            padding-left: 70px; /* Ensure consistent padding */
+            padding-right: 25px;
+            text-align: left;
+        }
+
+         .timeline-item:nth-child(odd) .timeline-card,
+         .timeline-item:nth-child(even) .timeline-card {
+            margin-left: 0; /* Reset margin */
+            margin-right: 0;
+        }
+
+        .timeline-icon {
+            left: 20px; /* Align icon with the line */
+            transform: translateX(-50%); /* Center icon on the line */
+            top: 0.5rem;
+            width: 30px;
+            height: 30px;
+        }
+        .timeline-icon svg {
+            width: 16px;
+            height: 16px;
+        }
+
+        .timeline-card {
+             max-width: none; /* Allow card to take available width */
+        }
+    }
 }
