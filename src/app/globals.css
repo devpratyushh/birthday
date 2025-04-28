@@ -5,8 +5,8 @@
 @layer base {
   :root {
     /* Refined Pastel Theme - Lighter background, softer contrasts */
-    --background: 300 100% 99.5%; /* Even lighter lavender */
-    /* Using a dark, muted pink/purple instead of black for foreground */
+    --background: 345 100% 99%; /* Very Light Pinkish Lavender */
+    /* Using a dark, muted pink/purple instead of black for foreground - Keep this for contrast */
     --foreground: 340 15% 30%; /* Darker, muted pink/purple for text */
 
     --card: 340 100% 98%; /* Very light pink card */
@@ -112,9 +112,9 @@
   body {
     /* Apply animated gradient */
     @apply text-foreground;
-    background: linear-gradient(135deg,
+    background: linear-gradient(135deg, /* Keep gradient, maybe adjust stops */
         hsl(var(--background)),
-        hsl(var(--primary) / 0.6),
+        hsl(var(--primary) / 0.7), /* Slightly more prominent primary pink */
         hsl(var(--secondary)),
         hsl(var(--accent) / 0.5));
     background-size: 400% 400%; /* Make gradient large for smooth panning */
