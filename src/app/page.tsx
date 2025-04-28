@@ -2,20 +2,20 @@
 
 import { useState, useEffect } from 'react';
 import { Countdown } from '@/components/countdown';
-import { HorizontalTimeline } from '@/components/horizontal-timeline'; // Updated import
+import { HorizontalTimeline } from '@/components/horizontal-timeline';
 import BirthdayLetter from '@/components/birthday-letter';
 import BackgroundAnimation from '@/components/background-animation';
 import { Separator } from '@/components/ui/separator';
-import { Heart } from 'lucide-react';
-import AnimatedHeading from '@/components/animated-heading'; // Import new component
+import AnimatedHeading from '@/components/animated-heading';
 
 // Define the target date: April 30th, 2025, 00:00:00 IST
 // Note: JavaScript Date month is 0-indexed, so April is 3.
-// We need to consider the Indian Standard Time (IST) offset UTC+5:30
-// April 30, 2025 00:00:00 IST is April 29, 2025 18:30:00 UTC
-const targetDate = new Date(Date.UTC(2025, 3, 29, 18, 30, 0)); // 3 is April
+// IST is UTC+5:30
+// April 30, 2025 00:00:00 IST === April 29, 2025 18:30:00 UTC
+// Use Date.UTC to avoid timezone issues during initialization
+const targetDate = new Date(Date.UTC(2025, 3, 29, 18, 30, 0)); // Month 3 is April
 
-// --- Letter Content (Extracted from request) ---
+// --- Letter Content ---
 const letterContent = `
 Hailo Hailoo!
 Hailoo to my cutieee pookieee kuchupuchuuuu, Hiii Anandita, kaisi hai meri jaaan!
@@ -30,13 +30,12 @@ Ik Anandita this is not the prettiest letter one could give neither this is the 
 
 
 // --- Timeline Events ---
-// Updated to reflect horizontal timeline potentially needing fewer items visible at once
 const timelineEvents = [
   {
     date: "Unexpected Day",
     title: "First Encounter",
     description: "The day life changed when I unexpectedly met someone special (very gora!) in school.",
-    imageUrl: "https://picsum.photos/300/180?random=1" // Slightly smaller images for horizontal view
+    imageUrl: "https://picsum.photos/300/180?random=1"
   },
   {
     date: "A Few Days Later",
@@ -54,7 +53,7 @@ const timelineEvents = [
     date: "Exam Season",
     title: "High School Romance Begins",
     description: "Whispering 'Btw Hi', asking 'cafe hai kya?', exchanging pouches, and sharing chocolates during exams. The best month!",
-   imageUrl: "https://picsum.photos/300/180?random=4"
+   imageUrl: "httpsum.photos/300/180?random=4"
   },
     {
     date: "Study Sessions",
@@ -72,61 +71,78 @@ const timelineEvents = [
     date: "April 30th, 2025",
     title: "Happy Birthday!",
     description: "Celebrating the first of many birthdays together. Welcome to adulting! Love youuuu babe!",
-    imageUrl: "https://picsum.photos/300/180?random=7" // Use a celebratory image
+    imageUrl: "https://picsum.photos/300/180?random=7"
   },
 ];
 // --- End Timeline Events ---
 
 
 export default function Home() {
-   // Check initial state based on current time vs target time
-   const [showLetter, setShowLetter] = useState(() => new Date() >= targetDate);
+   // Initialize state based on whether the target date has passed
+   const [isBirthdayTime, setIsBirthdayTime] = useState(() => new Date() >= targetDate);
 
+   // Function to be called by Countdown when it finishes
+   const handleCountdownComplete = () => {
+     console.log("Countdown complete!"); // Add log for debugging
+     setIsBirthdayTime(true);
+   };
+
+   // Effect to check the date periodically if the birthday hasn't arrived yet.
+   // This handles the case where the page is left open when the time arrives.
    useEffect(() => {
-    // If the letter isn't shown yet, set up an interval to check if the time has passed.
-    if (!showLetter) {
+    if (!isBirthdayTime) {
       const intervalId = setInterval(() => {
         if (new Date() >= targetDate) {
-          setShowLetter(true);
-          clearInterval(intervalId); // Clear interval once the time is reached
+          console.log("Target date reached via interval check!"); // Add log
+          setIsBirthdayTime(true);
+          clearInterval(intervalId);
         }
-      }, 1000); // Check every second
+      }, 1000 * 60); // Check every minute to reduce load
 
       // Cleanup interval on component unmount
       return () => clearInterval(intervalId);
     }
-  }, [showLetter]); // Re-run effect if showLetter changes
+  }, [isBirthdayTime]); // Re-run effect if isBirthdayTime changes
 
+  // Debugging log
+  // console.log("Target Date:", targetDate.toISOString());
+  // console.log("Current Date:", new Date().toISOString());
+  // console.log("Is Birthday Time:", isBirthdayTime);
 
-  const handleCountdownComplete = () => {
-    setShowLetter(true);
-  };
 
   return (
     <main className="flex flex-col items-center justify-start min-h-screen pt-12 md:pt-16 relative overflow-x-hidden">
        <BackgroundAnimation />
 
-      {!showLetter ? (
-        <div className="flex flex-col items-center w-full space-y-10 md:space-y-16 z-10">
-          {/* Animated Heading */}
-          <AnimatedHeading />
+       <div className="z-10 w-full flex flex-col items-center">
+         {!isBirthdayTime ? (
+           <>
+             {/* Animated Heading */}
+             <AnimatedHeading />
 
-          {/* Improved Countdown */}
-           <Countdown targetDate={targetDate} onComplete={handleCountdownComplete} />
+             {/* Countdown */}
+             <div className="my-8 md:my-12">
+                <Countdown targetDate={targetDate} onComplete={handleCountdownComplete} />
+             </div>
 
-           <Separator className="my-6 md:my-10 max-w-xs md:max-w-sm mx-auto bg-primary/40 h-[2px]" />
 
-           {/* Section Title for Timeline */}
-           <h2 className="text-3xl md:text-4xl font-bold text-center text-secondary-foreground mb-2">
-             Our Little Journey So Far...
-           </h2>
+             <Separator className="my-6 md:my-10 max-w-xs md:max-w-sm mx-auto bg-primary/40 h-[2px]" />
 
-           {/* Horizontal Timeline */}
-           <HorizontalTimeline events={timelineEvents} />
-        </div>
-      ) : (
-        <BirthdayLetter letterContent={letterContent} />
-      )}
+             {/* Section Title for Timeline */}
+             <h2 className="text-3xl md:text-4xl font-bold text-center text-secondary-foreground mb-4">
+               Our Little Journey So Far...
+             </h2>
+
+             {/* Horizontal Timeline */}
+             <div className="w-full"> {/* Ensure timeline takes full width */}
+                <HorizontalTimeline events={timelineEvents} />
+             </div>
+
+           </>
+         ) : (
+           <BirthdayLetter letterContent={letterContent} />
+         )}
+       </div>
     </main>
   );
 }

@@ -156,6 +156,7 @@ body {
     height: 2px; /* Adjust thickness */
     background-color: hsl(var(--destructive)); /* Or use primary/accent color */
     animation: strikethrough 0.5s ease-out forwards;
+    transform: translateY(-50%); /* Center the line vertically */
   }
 
    /* Text reveal/replace animation */
@@ -215,94 +216,75 @@ body {
       100% { transform: rotateX(-90deg); }
    }
    .animate-flip-down {
-       animation: flip-down 0.5s ease-in-out;
+       /* Use forwards to maintain the end state */
+       animation: flip-down 0.5s ease-in forwards;
    }
     @keyframes flip-up {
       0% { transform: rotateX(90deg); }
       100% { transform: rotateX(0deg); }
    }
    .animate-flip-up {
-       animation: flip-up 0.5s ease-in-out;
-       animation-delay: 0.5s; /* Start after flip-down finishes */
+       /* Use forwards to maintain the end state */
+       animation: flip-up 0.5s ease-out forwards;
+       /* Removed delay, handled by state in component */
+       /* animation-delay: 0.5s; */
    }
 
-    /* Horizontal timeline scroll */
+    /* Utilities for 3D transforms (if not included by default) */
+   .perspective-\\[500px\\] { perspective: 500px; }
+   .transform-style-3d { transform-style: preserve-3d; }
+   .backface-hidden { backface-visibility: hidden; -webkit-backface-visibility: hidden; } /* Add vendor prefix */
+
+
+    /* Horizontal timeline styles */
    .horizontal-timeline {
-    /* Allow horizontal scrolling */
-    overflow-x: auto;
-    /* Hide scrollbar visually */
+    overflow-x: auto; /* Enable horizontal scroll */
+    overflow-y: hidden; /* Prevent vertical scroll on this element */
     scrollbar-width: none; /* Firefox */
     -ms-overflow-style: none; /* IE and Edge */
-    &::-webkit-scrollbar {
-      display: none; /* Chrome, Safari, Opera */
-    }
-    /* Ensure content doesn't wrap */
-    white-space: nowrap;
-    /* Add padding so start/end cards aren't cut off */
-    padding-left: 5vw;
-    padding-right: 5vw;
-    /* Add some vertical padding */
+    scroll-snap-type: x mandatory; /* Optional: Snap scrolling */
+    scroll-padding-left: 5vw; /* Ensure start padding is respected for snap */
+    scroll-padding-right: 5vw; /* Ensure end padding is respected for snap */
+    position: relative; /* Needed for absolute positioning of line/icons */
+    width: 100vw; /* Take full viewport width */
+    margin-left: -50vw; /* Center trick: move left by half viewport width */
+    left: 50%; /* Center trick: align left edge to center */
     padding-top: 2rem;
     padding-bottom: 4rem; /* More space below */
-    /* For the elastic effect, we need a wrapper for transform */
-    position: relative;
-    width: 100vw; /* Ensure it takes full viewport width */
-    left: 50%;
-    transform: translateX(-50%);
+    /* Remove whitespace nowrap if causing issues with flex gap */
+    /* white-space: nowrap; */ /* Keep items in one line */
+   }
+   .horizontal-timeline::-webkit-scrollbar {
+      display: none; /* Chrome, Safari, Opera */
    }
 
     .timeline-content {
-      display: inline-flex; /* Layout items horizontally */
+      display: inline-flex; /* Use inline-flex to keep items horizontal and allow gap */
       gap: 1rem; /* Space between timeline cards */
-      position: relative;
-      /* Center the line vertically - adjust as needed */
-      /*top: 50%;
-      transform: translateY(-50%);*/
-      min-width: 100%; /* Ensure it spans at least the container width */
+      position: relative; /* Context for absolute positioned line/icons */
+      padding-left: 5vw; /* Padding inside the scrolling content */
+      padding-right: 5vw; /* Padding inside the scrolling content */
+      min-width: max-content; /* Ensure container is wide enough for all cards */
    }
 
-    /* Focus ring/lens effect styling (conceptual) */
-   .timeline-focus-ring {
-       position: absolute;
-       top: 50%;
-       left: 50%;
-       transform: translate(-50%, -50%);
-       width: 150px; /* Adjust size */
-       height: 150px; /* Adjust size */
-       border: 3px dashed hsl(var(--primary) / 0.5);
-       border-radius: 50%;
-       pointer-events: none; /* Don't interfere with scrolling */
-       opacity: 0.7;
-       box-shadow: 0 0 15px hsl(var(--primary) / 0.3);
-       z-index: 5; /* Above timeline items */
-   }
-
-   /* Ensure cards have some minimum width and don't shrink too much */
-   .timeline-card {
-     min-width: 300px; /* Adjust as needed */
-     max-width: 350px; /* Adjust as needed */
-     display: inline-block; /* Override flex shrinking */
-     white-space: normal; /* Allow text wrapping inside cards */
-     vertical-align: top; /* Align cards to the top */
-     height: auto; /* Allow card height to adjust to content */
-   }
     /* Styles for the central line in horizontal timeline */
     .horizontal-timeline-line {
       position: absolute;
-      left: 0;
-      right: 0; /* Span the width of the scrollable content */
-      top: 50%; /* Position vertically in the middle */
+      left: 5vw; /* Start line after left padding */
+      right: 5vw; /* End line before right padding */
+      top: calc(50% + 2rem); /* Adjust vertical position based on padding-top */
       height: 4px; /* Line thickness */
       background: linear-gradient(to right, transparent, hsl(var(--primary)/0.4), transparent); /* Faded line */
       transform: translateY(-50%);
       z-index: 1; /* Behind cards but visible */
+      pointer-events: none; /* Don't interfere with scrolling */
     }
 
      /* Styles for the icons on the horizontal line */
     .horizontal-timeline-icon {
        position: absolute;
-       top: 50%;
-       /* left position will be calculated dynamically */
+       top: calc(50% + 2rem); /* Match line's vertical position */
+       /* left position will be calculated dynamically via style prop */
        transform: translate(-50%, -50%); /* Center the icon */
        background-color: hsl(var(--background));
        padding: 0.5rem; /* p-2 */
@@ -311,18 +293,26 @@ body {
        box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1); /* shadow-md */
        z-index: 10; /* Above the line and cards */
        transition: transform 0.3s ease-out;
+       cursor: pointer; /* Indicate interactivity */
     }
      .horizontal-timeline-icon:hover {
         transform: translate(-50%, -50%) scale(1.1); /* Slightly enlarge on hover */
      }
 
-     /* Elastic scroll effect container */
-    .scroll-container {
-      overflow: hidden; /* Clip the content */
-    }
+    /* Ensure cards have width and don't shrink unexpectedly */
+   .timeline-card {
+     flex-shrink: 0; /* Prevent cards from shrinking */
+     width: 300px; /* Fixed width for consistency */
+     max-width: 350px;
+     scroll-snap-align: center; /* Optional: Center card on snap */
+     /* Removed inline-block, flex handles layout */
+     white-space: normal; /* Allow text wrapping inside cards */
+     vertical-align: top; /* Align cards to the top if flex not used*/
+     height: auto; /* Allow card height to adjust to content */
+   }
 
-    .scroll-content {
-      /* Will be transformed by JS */
-      transition: transform 0.5s cubic-bezier(0.23, 1, 0.32, 1); /* Elastic transition */
-    }
+   /* Removed focus ring and elastic scroll JS-dependent styles for simplification */
+   /* .timeline-focus-ring { ... } */
+   /* .scroll-container { ... } */
+   /* .scroll-content { ... } */
 }

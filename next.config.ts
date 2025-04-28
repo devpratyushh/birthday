@@ -18,6 +18,8 @@ const nextConfig: NextConfig = {
       },
     ],
   },
+  // Remove output: 'export' if present, as it conflicts with the standard dev server
+  // Remove assetPrefix if present, unless specifically deploying to a subdirectory
 };
 
 export default nextConfig;

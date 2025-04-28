@@ -1,7 +1,6 @@
 "use client";
 
-import { useState, useEffect, memo } from 'react';
-import { Card, CardContent } from '@/components/ui/card';
+import { useState, useEffect, memo, useRef } from 'react';
 import { cn } from '@/lib/utils';
 
 interface TimeLeft {
@@ -18,81 +17,91 @@ interface CountdownProps {
 
 const calculateTimeLeft = (targetDate: Date): TimeLeft | null => {
   const difference = +targetDate - +new Date();
-  let timeLeft: TimeLeft | null = null;
 
-  if (difference > 0) {
-    timeLeft = {
-      days: Math.floor(difference / (1000 * 60 * 60 * 24)),
-      hours: Math.floor((difference / (1000 * 60 * 60)) % 24),
-      minutes: Math.floor((difference / 1000 / 60) % 60),
-      seconds: Math.floor((difference / 1000) % 60),
-    };
+  if (difference <= 0) {
+    return null; // Time is up or has passed
   }
 
-  return timeLeft;
+  return {
+    days: Math.floor(difference / (1000 * 60 * 60 * 24)),
+    hours: Math.floor((difference / (1000 * 60 * 60)) % 24),
+    minutes: Math.floor((difference / 1000 / 60) % 60),
+    seconds: Math.floor((difference / 1000) % 60),
+  };
 };
 
 // Individual Flip Unit Component
 interface FlipUnitProps {
   currentValue: number;
-  previousValue: number | null; // Keep track of the previous value for animation
+  previousValue: number; // Now non-nullable, controlled by parent
   label: string;
 }
 
 const FlipUnit: React.FC<FlipUnitProps> = memo(({ currentValue, previousValue, label }) => {
-  const [displayValue, setDisplayValue] = useState(currentValue);
+  const isInitialMount = useRef(true); // Track initial mount
   const [isFlipping, setIsFlipping] = useState(false);
+
   const formattedValue = String(currentValue).padStart(2, '0');
-  const formattedPreviousValue = String(previousValue ?? currentValue).padStart(2, '0');
+  const formattedPreviousValue = String(previousValue).padStart(2, '0');
 
   useEffect(() => {
-    if (previousValue !== null && currentValue !== previousValue) {
+     // Don't animate on initial mount
+    if (isInitialMount.current) {
+        isInitialMount.current = false;
+        return;
+    }
+
+    // Only trigger flip if the value actually changed
+    if (currentValue !== previousValue) {
       setIsFlipping(true);
       const timer = setTimeout(() => {
-        setDisplayValue(currentValue);
         setIsFlipping(false);
-      }, 450); // Slightly less than animation duration to ensure smooth transition
+      }, 480); // Match animation duration in CSS
       return () => clearTimeout(timer);
-    } else if (previousValue === null) {
-       // Initial load, set directly without animation
-       setDisplayValue(currentValue);
     }
   }, [currentValue, previousValue]);
 
 
   return (
     <div className="flex flex-col items-center text-center w-16 h-24 md:w-24 md:h-32 perspective-[500px]">
-      <div className="relative w-full h-1/2">
-        {/* Top Half (Static) */}
-        <div className="absolute inset-0 bg-primary/80 text-primary-foreground rounded-t-lg flex items-center justify-center overflow-hidden">
-          <span className="text-3xl md:text-5xl font-bold tabular-nums">{formattedValue}</span>
+      <div className="relative w-full h-1/2 overflow-hidden rounded-t-lg">
+        {/* Top Half (Static - shows previous value until flip starts) */}
+        <div className="absolute inset-0 bg-primary/80 text-primary-foreground flex items-end justify-center pb-1">
+          <span className="text-3xl md:text-5xl font-bold tabular-nums">{formattedPreviousValue}</span>
         </div>
-        {/* Top Half (Flipping) */}
+        {/* Top Half (Flipping - rotates down with previous value) */}
         <div
           className={cn(
-            "absolute inset-0 bg-primary text-primary-foreground rounded-t-lg flex items-center justify-center overflow-hidden origin-bottom transform-style-3d backface-hidden",
+            "absolute inset-0 bg-primary text-primary-foreground flex items-end justify-center pb-1 origin-bottom transform-style-3d backface-hidden",
             isFlipping ? 'animate-flip-down' : ''
           )}
-          style={{ zIndex: 2 }} // Ensure flipping part is on top during animation
+          style={{ zIndex: 2 }}
         >
           <span className="text-3xl md:text-5xl font-bold tabular-nums">{formattedPreviousValue}</span>
         </div>
-      </div>
-      <div className="relative w-full h-1/2">
-         {/* Bottom Half (Static - shows new value after flip) */}
-        <div className="absolute inset-0 bg-primary text-primary-foreground rounded-b-lg flex items-center justify-center overflow-hidden">
+         {/* Top Half (Static - shows new value after flip completes) */}
+        <div className="absolute inset-0 bg-primary/80 text-primary-foreground flex items-end justify-center pb-1">
           <span className="text-3xl md:text-5xl font-bold tabular-nums">{formattedValue}</span>
         </div>
-        {/* Bottom Half (Flipping - reveals new value) */}
+      </div>
+      <div className="relative w-full h-1/2 overflow-hidden rounded-b-lg">
+         {/* Bottom Half (Static - shows previous value initially) */}
+        <div className="absolute inset-0 bg-primary text-primary-foreground flex items-start justify-center pt-1">
+          <span className="text-3xl md:text-5xl font-bold tabular-nums">{formattedPreviousValue}</span>
+        </div>
+        {/* Bottom Half (Flipping - reveals new value rotating up) */}
         <div
            className={cn(
-            "absolute inset-0 bg-primary/80 text-primary-foreground rounded-b-lg flex items-center justify-center overflow-hidden origin-top transform-style-3d backface-hidden",
+            "absolute inset-0 bg-primary/80 text-primary-foreground flex items-start justify-center pt-1 origin-top transform-style-3d backface-hidden",
              isFlipping ? 'animate-flip-up' : ''
            )}
-            style={{ transform: isFlipping ? 'rotateX(90deg)' : 'rotateX(0deg)' }}
         >
            <span className="text-3xl md:text-5xl font-bold tabular-nums">{formattedValue}</span>
          </div>
+          {/* Bottom Half (Static - shows new value after flip) */}
+         <div className="absolute inset-0 bg-primary text-primary-foreground flex items-start justify-center pt-1">
+          <span className="text-3xl md:text-5xl font-bold tabular-nums">{formattedValue}</span>
+        </div>
       </div>
         {/* Shadow effect */}
        <div className="absolute inset-0 rounded-lg shadow-inner shadow-black/20 pointer-events-none"></div>
@@ -106,51 +115,70 @@ const FlipUnit: React.FC<FlipUnitProps> = memo(({ currentValue, previousValue, l
 
 FlipUnit.displayName = 'FlipUnit';
 
+
 export const Countdown: React.FC<CountdownProps> = ({ targetDate, onComplete }) => {
-  const [timeLeft, setTimeLeft] = useState<TimeLeft | null>(() => calculateTimeLeft(targetDate));
-  const [previousTimeLeft, setPreviousTimeLeft] = useState<TimeLeft | null>(null);
-  const [isComplete, setIsComplete] = useState(false);
+  const [currentTimeLeft, setCurrentTimeLeft] = useState<TimeLeft | null>(() => calculateTimeLeft(targetDate));
+  // Use ref for previous time to avoid re-renders caused by setting previous state
+  const previousTimeLeftRef = useRef<TimeLeft | null>(null);
+  const intervalRef = useRef<NodeJS.Timeout | null>(null); // Ref to hold interval ID
+
+  // Store current time as previous before the next update
+  useEffect(() => {
+      previousTimeLeftRef.current = currentTimeLeft;
+  });
+
 
   useEffect(() => {
-    // Calculate initial state synchronously
-    const initialTimeLeft = calculateTimeLeft(targetDate);
-    setTimeLeft(initialTimeLeft);
-    if (!initialTimeLeft) {
-       setIsComplete(true);
-       // Ensure onComplete is called if already past the date on load
-       if (+new Date() >= +targetDate) {
+     // Function to handle the interval tick
+    const tick = () => {
+       const newTimeLeft = calculateTimeLeft(targetDate);
+       setCurrentTimeLeft(newTimeLeft);
+
+       if (newTimeLeft === null) {
+         console.log("Countdown interval detected completion."); // Debug log
          onComplete();
+         if (intervalRef.current) {
+           clearInterval(intervalRef.current);
+         }
        }
+    };
+
+    // Immediately check if the time is already up on mount
+    const initialTimeLeft = calculateTimeLeft(targetDate);
+    setCurrentTimeLeft(initialTimeLeft); // Set initial time
+
+    if (initialTimeLeft === null) {
+      console.log("Countdown initial check detected completion."); // Debug log
+      onComplete();
+      return; // Don't start the interval if already complete
     }
 
-    const timer = setInterval(() => {
-      const newTimeLeft = calculateTimeLeft(targetDate);
-      setPreviousTimeLeft(timeLeft); // Store current time as previous
-      setTimeLeft(newTimeLeft);
-
-      if (!newTimeLeft && !isComplete) {
-        setIsComplete(true);
-        onComplete();
-        clearInterval(timer); // Stop the timer once complete
-      }
-    }, 1000);
+    // Start the interval
+    intervalRef.current = setInterval(tick, 1000);
 
     // Clear interval on component unmount
-    return () => clearInterval(timer);
-  }, [targetDate, onComplete, isComplete, timeLeft]); // Added timeLeft to dependency array for previousTimeLeft update
+    return () => {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+      }
+    };
+  }, [targetDate, onComplete]); // Dependencies
 
 
-  if (isComplete || !timeLeft) {
-    return null; // Don't render the countdown if it's complete
+  if (currentTimeLeft === null) {
+    return null; // Render nothing if countdown is complete
   }
+
+  // Get the previous time values, defaulting to current if no previous (initial render)
+  const prevTime = previousTimeLeftRef.current ?? currentTimeLeft;
 
   return (
       <div className="flex justify-center items-start space-x-2 sm:space-x-4 md:space-x-6 p-4">
-        {(Object.keys(timeLeft) as Array<keyof TimeLeft>).map((interval) => (
+        {(Object.keys(currentTimeLeft) as Array<keyof TimeLeft>).map((interval) => (
           <FlipUnit
             key={interval}
-            currentValue={timeLeft[interval]}
-            previousValue={previousTimeLeft ? previousTimeLeft[interval] : null}
+            currentValue={currentTimeLeft[interval]}
+            previousValue={prevTime[interval]} // Pass previous value
             label={interval}
           />
         ))}
@@ -158,16 +186,34 @@ export const Countdown: React.FC<CountdownProps> = ({ targetDate, onComplete }) 
   );
 };
 
-// Add necessary CSS for perspective and backface-visibility in globals.css or here
+// Add necessary CSS for perspective and backface-visibility if not in globals.css
 const styles = `
 .perspective-\\[500px\\] { perspective: 500px; }
 .transform-style-3d { transform-style: preserve-3d; }
-.backface-hidden { backface-visibility: hidden; }
+.backface-hidden { backface-visibility: hidden; -webkit-backface-visibility: hidden; }
+
+@keyframes flip-down {
+  0% { transform: rotateX(0deg); }
+  100% { transform: rotateX(-90deg); }
+}
+.animate-flip-down {
+  animation: flip-down 0.5s ease-in forwards; /* Use forwards to keep end state */
+}
+
+@keyframes flip-up {
+  0% { transform: rotateX(90deg); }
+  100% { transform: rotateX(0deg); }
+}
+.animate-flip-up {
+  animation: flip-up 0.5s ease-out forwards; /* Use forwards */
+  /* Delay slightly less than flip-down to overlap smoothly */
+  /* animation-delay: 0.45s; */
+}
 `;
 
-// Inject styles (optional, could be in globals.css)
+// Inject styles (ensure this runs only once)
 if (typeof window !== 'undefined') {
-  const styleSheetId = 'countdown-styles';
+  const styleSheetId = 'countdown-flip-styles';
   if (!document.getElementById(styleSheetId)) {
       const styleSheet = document.createElement("style");
       styleSheet.id = styleSheetId;
