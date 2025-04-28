@@ -12,11 +12,12 @@ interface AnimatedIcon {
 }
 
 const ICONS = [Heart, Star, BookOpen, Pencil, GraduationCap]; // Include new icons
+const ICON_PRIORITY = [Heart, Heart, Heart, Star, Star, BookOpen, Pencil, GraduationCap]; // Prioritize Hearts and Stars
 
 const BackgroundAnimation: React.FC = () => {
   const [icons, setIcons] = useState<AnimatedIcon[]>([]);
   const [isClient, setIsClient] = useState(false);
-  const numIcons = 30; // Slightly increased number of icons
+  const numIcons = 35; // Slightly increased number of icons for more density
 
   useEffect(() => {
     setIsClient(true); // Ensure this runs only on the client
@@ -27,38 +28,34 @@ const BackgroundAnimation: React.FC = () => {
 
     const generateIcons = () => {
       const newIcons: AnimatedIcon[] = [];
-      const iconTypesCount = ICONS.length;
+      const iconTypesCount = ICON_PRIORITY.length; // Use priority array length
       for (let i = 0; i < numIcons; i++) {
-        // Choose an icon - slightly more hearts and stars
-        let IconComponent;
-        const rand = Math.random();
-        if (rand < 0.35) IconComponent = Heart;
-        else if (rand < 0.65) IconComponent = Star;
-        else IconComponent = ICONS[Math.floor(Math.random() * iconTypesCount)];
+        // Choose an icon based on priority list
+        const IconComponent = ICON_PRIORITY[i % iconTypesCount]; // Cycle through priority list
 
-
-        const size = Math.random() * 15 + 10; // Size between 10px and 25px
+        const size = Math.random() * 18 + 10; // Size between 10px and 28px
         const top = `${Math.random() * 100}%`;
         const left = `${Math.random() * 100}%`;
-        const animationDuration = `${Math.random() * 8 + 5}s`; // Duration 5s to 13s (slower overall)
-        const animationDelay = `${Math.random() * 6}s`; // Delay 0s to 6s
+        const animationDuration = `${Math.random() * 10 + 6}s`; // Duration 6s to 16s (slower overall)
+        const animationDelay = `${Math.random() * 8}s`; // Delay 0s to 8s
         const zIndex = Math.floor(Math.random() * 2); // z-index 0 or 1 (keep behind content)
-        const opacity = Math.random() * 0.4 + 0.1; // Lower opacity for subtlety (0.1 to 0.5)
+        const opacity = Math.random() * 0.5 + 0.15; // Slightly higher minimum opacity (0.15 to 0.65)
 
         let colorClass = '';
         let animationClass = '';
 
+        // Assign colors and animations based on icon type
         switch (IconComponent) {
             case Heart:
-                colorClass = 'text-primary/30'; // Softer pink
+                colorClass = 'text-primary/40'; // Slightly more visible pink
                 animationClass = 'animate-float';
                 break;
             case Star:
-                colorClass = 'text-accent/40'; // Softer coral/gold
+                colorClass = 'text-accent/50'; // Slightly more visible coral/gold
                 animationClass = 'animate-twinkle';
                 break;
             case BookOpen:
-                 colorClass = 'text-secondary-foreground/20'; // Muted secondary color
+                 colorClass = 'text-secondary-foreground/25'; // Muted secondary color
                  animationClass = 'animate-float'; // Can use float or a new slow drift
                  break;
             case Pencil:
@@ -66,7 +63,7 @@ const BackgroundAnimation: React.FC = () => {
                  animationClass = 'animate-twinkle'; // Can use twinkle or drift
                  break;
             case GraduationCap:
-                colorClass = 'text-foreground/15'; // Very subtle foreground
+                colorClass = 'text-foreground/20'; // Very subtle foreground
                 animationClass = 'animate-float';
                 break;
             default:

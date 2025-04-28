@@ -8,7 +8,7 @@ export interface TimelineEvent {
   title: string;
   description: string;
   icon?: React.ElementType; // Optional specific icon
-  imageUrl?: string; // Optional image URL (using placeholder for now)
+  imageUrl?: string; // Optional image URL
 }
 
 // Placeholder image base URL - using picsum.photos for variety
@@ -22,7 +22,7 @@ export const timelineEvents: TimelineEvent[] = [
     title: 'First Encounter 👀',
     description: 'The day our paths crossed unexpectedly at the sarkari school. A simple "ye aage kyu hai?" started it all.',
     icon: Heart,
-    imageUrl: placeholderImageUrl(1),
+    imageUrl: placeholderImageUrl(101), // Changed seed
   },
    {
     id: 2,
@@ -30,7 +30,7 @@ export const timelineEvents: TimelineEvent[] = [
     title: 'The Confession & Late Night Talks 💬',
     description: 'Took a leap of faith (maybe too soon!) but it led to hours of conversation, even if the "proposal" flopped.',
     icon: MessageSquare,
-    imageUrl: placeholderImageUrl(2),
+    imageUrl: placeholderImageUrl(102), // Changed seed
   },
   {
     id: 3,
@@ -38,7 +38,7 @@ export const timelineEvents: TimelineEvent[] = [
     title: 'Whispers & Cafe Dreams ☕',
     description: 'From shy "Btw Hi" whispers to "cafe hai kya?" moments, building memories one interaction at a time.',
     icon: Sparkles, // Using Sparkles for magical/special moments
-    imageUrl: placeholderImageUrl(3),
+    imageUrl: placeholderImageUrl(103), // Changed seed
   },
   {
     id: 4,
@@ -46,7 +46,7 @@ export const timelineEvents: TimelineEvent[] = [
     title: 'Study Buddies & Chocolate Breaks 🍫',
     description: 'Stressing about exams but finding joy in shared chocolates and study sessions (like ITF & English Lit!).',
     icon: Pencil,
-    imageUrl: placeholderImageUrl(4),
+    imageUrl: placeholderImageUrl(104), // Changed seed
   },
    {
     id: 5,
@@ -54,7 +54,7 @@ export const timelineEvents: TimelineEvent[] = [
     title: 'The Pouch Exchange ✨',
     description: 'A small but significant exchange that holds a special place in our story.',
     icon: Gift, // Using Gift for exchange/special item
-    imageUrl: placeholderImageUrl(5),
+    imageUrl: placeholderImageUrl(105), // Changed seed
   },
   {
     id: 6,
@@ -62,7 +62,7 @@ export const timelineEvents: TimelineEvent[] = [
     title: 'JEE Aspirant Journey 📚',
     description: 'Navigating the challenges and dreams of being a JEE aspirant, supporting each other along the way.',
     icon: BookOpen,
-    imageUrl: placeholderImageUrl(6),
+    imageUrl: placeholderImageUrl(106), // Changed seed
   },
    {
     id: 7,
@@ -70,7 +70,7 @@ export const timelineEvents: TimelineEvent[] = [
     title: 'Happy Birthday! 🎉',
     description: 'Celebrating you today! Welcome to adulting, may your year be filled with joy and success. ',
     icon: GraduationCap, // Could also be a Gift or Cake icon if available
-    imageUrl: placeholderImageUrl(7),
+    imageUrl: placeholderImageUrl(107), // Changed seed
   },
    {
     id: 8,
@@ -78,6 +78,6 @@ export const timelineEvents: TimelineEvent[] = [
     title: 'Our Life Together ❤️',
     description: 'Looking forward to countless more memories, adventures, nok-jhok, and celebrating life side-by-side.',
     icon: Heart,
-    imageUrl: placeholderImageUrl(8),
+    imageUrl: placeholderImageUrl(108), // Changed seed
   },
 ];

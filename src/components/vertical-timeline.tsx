@@ -39,21 +39,31 @@ export const VerticalTimeline: React.FC<VerticalTimelineProps> = ({ events }) =>
             entries.forEach((entry) => {
             if (entry.isIntersecting) {
                 entry.target.classList.add('visible');
-                observer.unobserve(entry.target); // Stop observing once visible
+                // Optional: Unobserve after animation for performance,
+                // but keep observing if you want re-animation on scroll up/down
+                // observer.unobserve(entry.target);
+            } else {
+                 // Optional: Remove 'visible' if you want re-animation when scrolling out of view
+                 // entry.target.classList.remove('visible');
             }
             });
         },
         {
-            threshold: 0.1, // Trigger when 10% of the item is visible
-            rootMargin: '0px 0px -50px 0px', // Trigger slightly before it enters the viewport bottom
+            threshold: 0.2, // Trigger when 20% of the item is visible
+            rootMargin: '0px 0px -10% 0px', // Trigger slightly before it enters the viewport bottom (adjust percentage as needed)
         }
         );
 
         const items = timelineRef.current?.querySelectorAll('.timeline-item');
         items?.forEach((item) => observer.observe(item));
 
+        // Cleanup function
         return () => {
-        items?.forEach((item) => observer.unobserve(item));
+            items?.forEach((item) => {
+              if (item) { // Check if item exists before unobserving
+                observer.unobserve(item);
+              }
+            });
         };
     }, [events]); // Re-run if events change
 
@@ -88,14 +98,13 @@ export const VerticalTimeline: React.FC<VerticalTimelineProps> = ({ events }) =>
                    </CardHeader>
                    <CardContent className={`${isOdd ? 'md:text-right' : 'md:text-left'}`}>
                      {event.imageUrl && (
-                        // Use a placeholder image for now
                        <div className="relative w-full aspect-video mb-3 rounded-md overflow-hidden bg-muted">
                           <Image
-                           src={`https://picsum.photos/seed/${event.id}/400/225`} // Use event ID for consistent placeholders
-                           alt={`${event.title} placeholder image`}
+                           src={event.imageUrl} // Use the actual image URL from data
+                           alt={`${event.title} illustration`}
                            layout="fill"
                            objectFit="cover"
-                           className="transition-transform duration-300 group-hover:scale-105" // Added group-hover effect if needed
+                           className="transition-transform duration-300 group-hover:scale-105"
                          />
                        </div>
                      )}

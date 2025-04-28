@@ -118,13 +118,15 @@
 
    /* Timeline specific styles */
   .timeline-item {
-    @apply opacity-0 transition-opacity duration-1000 ease-out;
-    transform: translateY(20px);
+    /* Start slightly scaled down and further down */
+    @apply opacity-0 transition-all duration-1000 ease-out;
+    transform: translateY(50px) scale(0.95);
   }
 
   .timeline-item.visible {
+    /* Scale up and move up to final position */
     @apply opacity-100;
-    transform: translateY(0);
+    transform: translateY(0) scale(1);
   }
 
    .timeline-line {
@@ -148,6 +150,31 @@
  .timeline-item:nth-child(even) .timeline-dot {
     left: calc(50% - 0.5rem); /* Align with line */
  }
+
+  /* Heading Animation Styles */
+  .heading-text {
+    position: relative;
+    display: inline-block;
+    transition: opacity 0.3s ease-out;
+  }
+
+  .heading-text.strike::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 50%;
+    height: 2px; /* Thickness of strikethrough */
+    background-color: currentColor; /* Use text color for line */
+    transform: scaleX(0);
+    transform-origin: left;
+    animation: strike-through 0.5s ease-out forwards;
+  }
+
+   .heading-text.final {
+     animation: fade-in-text 0.5s ease-out forwards;
+   }
+
 }
 
 @layer utilities {
@@ -159,6 +186,19 @@
   .animate-fade-in {
     animation: fade-in 0.8s ease-out forwards;
   }
+
+   /* Fade-in for replacement text */
+   @keyframes fade-in-text {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  /* Strikethrough Animation */
+  @keyframes strike-through {
+    0% { transform: scaleX(0); }
+    100% { transform: scaleX(1); }
+  }
+
 
   /* Background Animations */
   @keyframes float {
@@ -209,5 +249,22 @@
      backface-visibility: hidden;
      transform-origin: top;
   }
+
+   /* Balloon Animations */
+   @keyframes balloon-float {
+      0%, 100% { transform: translateY(0) rotate(-3deg); }
+      50% { transform: translateY(-30px) rotate(5deg); }
+    }
+
+   .animate-balloon-float-1 {
+      animation: balloon-float 7s ease-in-out infinite;
+   }
+   .animate-balloon-float-2 {
+       animation: balloon-float 9s ease-in-out infinite 0.5s; /* Different duration and delay */
+   }
+    .animate-balloon-float-3 {
+       animation: balloon-float 8s ease-in-out infinite 1s; /* Different duration and delay */
+   }
+
 
 }
