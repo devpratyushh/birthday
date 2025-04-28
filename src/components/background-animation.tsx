@@ -52,8 +52,8 @@ const BackgroundAnimation: React.FC = () => {
         const animationDuration = `${Math.random() * 12 + 10}s`; // Duration 10s to 22s (Slower, more graceful float)
         const animationDelay = `${Math.random() * 18}s`; // Delay 0s to 18s (More variation)
         const zIndex = 0; // Keep all background icons behind content
-         // Hearts more opaque, others less
-        const opacity = IconComponent === Heart ? (Math.random() * 0.5 + 0.45) : (Math.random() * 0.25 + 0.1); // Hearts: 0.45 to 0.95 opacity, Others: 0.1 to 0.35
+         // Hearts more opaque, others less - INCREASED OPACITY
+        const opacity = IconComponent === Heart ? (Math.random() * 0.4 + 0.55) : (Math.random() * 0.3 + 0.25); // Hearts: 0.55 to 0.95 opacity, Others: 0.25 to 0.55
 
         let colorClass = '';
         let animationClass = '';
@@ -63,29 +63,29 @@ const BackgroundAnimation: React.FC = () => {
                 // Use more prominent pinks and corals for hearts
                  const heartColorRand = Math.random();
                 if (heartColorRand < 0.5) {
-                    colorClass = 'text-primary/75'; // Main pink, more opaque
+                    colorClass = 'text-primary/85'; // Main pink, more opaque
                 } else if (heartColorRand < 0.85) {
-                    colorClass = 'text-accent/65'; // Coral touch, good opacity
+                    colorClass = 'text-accent/75'; // Coral touch, good opacity
                 } else {
-                    colorClass = 'text-primary-highlight/55'; // Brighter highlight pink, medium opacity
+                    colorClass = 'text-primary-highlight/65'; // Brighter highlight pink, medium opacity
                 }
                 animationClass = 'animate-float'; // Hearts always float
                 break;
             case Star:
-                colorClass = 'text-secondary/30'; // Soft lavender stars, slightly more subtle
+                colorClass = 'text-secondary/50'; // Soft lavender stars, slightly more visible
                 animationClass = 'animate-twinkle';
                 break;
              case Flower2: // Rose/Flower icon
                  const flowerColorRand = Math.random();
                  if (flowerColorRand < 0.5) {
-                    colorClass = 'text-secondary/40'; // Lavender flowers
+                    colorClass = 'text-secondary/60'; // Lavender flowers, more visible
                  } else {
-                    colorClass = 'text-accent/40'; // Coral/Pinkish flowers
+                    colorClass = 'text-accent/60'; // Coral/Pinkish flowers, more visible
                  }
                 animationClass = Math.random() < 0.3 ? 'animate-float' : 'animate-twinkle'; // Mostly twinkle
                 break;
             default:
-                 colorClass = 'text-muted-foreground/20'; // Very subtle default
+                 colorClass = 'text-muted-foreground/30'; // Very subtle default, slightly more visible
                  animationClass = 'animate-twinkle';
         }
 
