@@ -20,7 +20,7 @@ const placeholderImageUrl = (seed: number | string, width = 400, height = 225) =
 export const timelineEvents: TimelineEvent[] = [
   {
     id: 1,
-    date: 'Somewhere in 2022',
+    date: 'Somewhere in 2022', // Changed year from 2025 to 2022 as requested (assuming this was the intent)
     title: 'First Encounter 👀',
     description: 'The day our paths crossed unexpectedly at the sarkari school. A simple "ye aage kyu hai?" started it all.',
     icon: Heart,
@@ -40,7 +40,7 @@ export const timelineEvents: TimelineEvent[] = [
     title: 'Whispers & Cafe Dreams ☕',
     description: 'From shy "Btw Hi" whispers to "cafe hai kya?" moments, building memories one interaction at a time.',
     icon: Sparkles,
-    imageUrl: placeholderImageUrl("whispers", 400, 225), // Placeholder for #3 - Update later if available
+    imageUrl: "https://i.imgur.com/HV7ujzB.jpeg", // Updated image for Whispers card
   },
   {
     id: 4,
@@ -51,28 +51,28 @@ export const timelineEvents: TimelineEvent[] = [
     imageUrl: "https://i.imgur.com/HrPjQyS.png",
   },
    {
-    id: 5, // ID 5: "From You and Me to Us" card - Now uses the image previously for #6
+    id: 5, // ID 5: "From You and Me to Us" card
     date: 'Gradually...',
     title: 'From You and Me to Us ❤️',
     description: 'The journey wasn\'t instant, but every shared moment, every laugh, every hurdle overcome, brought us closer, transforming "you" and "me" into "us".',
     icon: Users, // Icon representing partnership/togetherness
-    imageUrl: "https://i.imgur.com/WPiDZhs.jpeg", // Image swapped from #6
+    imageUrl: "https://i.imgur.com/WPiDZhs.jpeg", // Image originally for #5
    },
    {
-    id: 6, // ID 6: "Pouch Exchange" card - Now uses the image previously for #5
+    id: 6, // ID 6: "Pouch Exchange" card
     date: 'Around the Same Time',
     title: 'The Pouch Exchange ✨',
     description: 'A small but significant exchange that holds a special place in our story.',
     icon: Gift,
-    imageUrl: "https://i.imgur.com/WicaBr7.jpeg", // Image swapped from #5 (corrected URL)
+    imageUrl: "https://i.imgur.com/WicaBr7.jpeg", // Image originally for #6 (Corrected URL)
   },
    {
     id: 7,
     date: 'April 30th, 2025',
-    title: 'Happy Birthday! 🎂',
-    description: 'Celebrating you today! Welcome to adulting, may your year be filled with joy, love, and success. ',
+    title: 'Birthday Incoming! 🎂', // Changed title slightly
+    description: 'The big day is almost here! Get ready to celebrate. Wishing you the happiest birthday soon!', // Updated description
     icon: Cake, // Using Cake icon
-    imageUrl: placeholderImageUrl("birthdaycake", 400, 225), // Added placeholder cake image
+    imageUrl: "https://i.imgur.com/eQtd2e6.jpeg", // Updated cake image
   },
    {
     id: 8,
@@ -80,6 +80,7 @@ export const timelineEvents: TimelineEvent[] = [
     title: 'Our Life Together Continues 💖',
     description: 'Looking forward to countless more memories, adventures, nok-jhok, and celebrating life side-by-side, holding hands forever.',
     icon: Flower2, // Using Flower2 icon for future/growth
-    imageUrl: "https://i.imgur.com/9XybKcE.png", // Updated image for the last card
+    imageUrl: "https://i.imgur.com/9XybKcE.png", // Image for the last card
   },
 ];
+
