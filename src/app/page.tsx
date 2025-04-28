@@ -1,8 +1,9 @@
+
 'use client';
 
 import { useState, useEffect } from 'react';
 import { Countdown } from '@/components/countdown';
-import { VerticalTimeline } from '@/components/vertical-timeline';
+import { VerticalTimeline } from '@/components/vertical-timeline'; // Changed import
 import BirthdayLetter from '@/components/birthday-letter';
 import BackgroundAnimation from '@/components/background-animation';
 import { Separator } from '@/components/ui/separator';
@@ -35,61 +36,59 @@ const timelineEvents = [
     date: "Unexpected Day",
     title: "First Encounter",
     description: "The day life changed when I unexpectedly met someone special (very gora!) in school.",
-    imageUrl: "https://picsum.photos/300/180?random=1"
+    imageUrl: "https://picsum.photos/seed/1/300/180" // Use seeded random for consistency
   },
   {
     date: "A Few Days Later",
     title: "The Confession",
     description: "Gathered the courage to confess my feelings, drawn by something magical about you.",
-     imageUrl: "https://picsum.photos/300/180?random=2"
+     imageUrl: "https://picsum.photos/seed/2/300/180"
   },
     {
     date: "Late Night Talks",
     title: "All Night Conversation",
     description: "Even though the proposal didn't go as planned, we talked the entire night. The start of many long conversations.",
-    imageUrl: "https://picsum.photos/300/180?random=3"
+    imageUrl: "https://picsum.photos/seed/3/300/180"
   },
   {
     date: "Exam Season",
     title: "High School Romance Begins",
     description: "Whispering 'Btw Hi', asking 'cafe hai kya?', exchanging pouches, and sharing chocolates during exams. The best month!",
-   imageUrl: "https://picsum.photos/300/180?random=4"
+   imageUrl: "https://picsum.photos/seed/4/300/180"
   },
     {
     date: "Study Sessions",
     title: "ITF & English Lit Chats",
     description: "Finding excuses to talk, like teaching ITF or discussing English literature... leading to 4-hour chats!",
-    imageUrl: "https://picsum.photos/300/180?random=5"
+    imageUrl: "https://picsum.photos/seed/5/300/180"
   },
   {
     date: "Now",
     title: "From 'You & Me' to 'Us'",
     description: "It's been a journey, but nothing compared to the one ahead. Holding your hand, once and for all.",
-    imageUrl: "https://picsum.photos/300/180?random=6"
+    imageUrl: "https://picsum.photos/seed/6/300/180"
   },
     {
     date: "April 30th, 2025",
     title: "Happy Birthday!",
     description: "Celebrating the first of many birthdays together. Welcome to adulting! Love youuuu babe!",
-    imageUrl: "https://picsum.photos/300/180?random=7"
+    imageUrl: "https://picsum.photos/seed/7/300/180"
   },
 ];
 // --- End Timeline Events ---
 
 
 export default function Home() {
-   // Use state to track whether the component has mounted on the client
-   const [isClient, setIsClient] = useState(false);
-   // Use state to determine if it's birthday time, initialized based on client-side check
+   // Determine if it's birthday time based on client-side check
    const [isBirthdayTime, setIsBirthdayTime] = useState(false);
 
    useEffect(() => {
-       // This effect runs only on the client after the initial render
-       setIsClient(true);
-       // Now safely check the date
+       // Safely check the date on the client after hydration
        const checkDate = () => {
            if (new Date() >= targetDate) {
                setIsBirthdayTime(true);
+           } else {
+                setIsBirthdayTime(false); // Explicitly set to false if before target date
            }
        };
        checkDate(); // Check immediately on mount
@@ -110,7 +109,7 @@ export default function Home() {
        return () => {
            if (intervalId) clearInterval(intervalId);
        };
-   }, []); // Empty dependency array ensures this runs only once on the client
+   }, []); // Empty dependency array ensures this runs only once on the client after mount
 
 
    // Function to be called by Countdown when it finishes
@@ -119,18 +118,6 @@ export default function Home() {
      setIsBirthdayTime(true);
    };
 
-
-  // Avoid rendering the countdown or timeline on the server or before client hydration
-  if (!isClient) {
-     // Render a static placeholder or null during SSR and initial client render
-     // to prevent hydration mismatch
-     return (
-        <main className="flex flex-col items-center justify-start min-h-screen pt-12 md:pt-16 relative overflow-x-hidden">
-            <BackgroundAnimation />
-            {/* Optional: Add a simple loading indicator or skeleton here */}
-        </main>
-     );
-   }
 
   return (
     <main className="flex flex-col items-center justify-start min-h-screen pt-12 md:pt-16 relative overflow-x-hidden">
@@ -144,6 +131,7 @@ export default function Home() {
 
              {/* Countdown */}
              <div className="my-8 md:my-12">
+                {/* Pass targetDate as a prop */}
                 <Countdown targetDate={targetDate} onComplete={handleCountdownComplete} />
              </div>
 
@@ -156,15 +144,18 @@ export default function Home() {
              </h2>
 
              {/* Vertical Timeline */}
-             <div className="w-full max-w-4xl"> {/* Adjust width as needed */}
+             <div className="w-full max-w-4xl px-4"> {/* Added padding for small screens */}
                 <VerticalTimeline events={timelineEvents} />
              </div>
 
            </>
          ) : (
-           <BirthdayLetter letterContent={letterContent} />
+            // Render BirthdayLetter only after client-side check confirms it's time
+             isBirthdayTime && <BirthdayLetter letterContent={letterContent} />
          )}
        </div>
     </main>
   );
 }
+
+    
