@@ -15,14 +15,18 @@ export interface TimelineEvent {
 const placeholderImageUrl = (seed: number | string, width = 400, height = 225) =>
   `https://picsum.photos/seed/${seed}/${width}/${height}`;
 
-// Correct Direct Imgur links (extracted from previous history / assumed from albums)
+// Updated Imgur links based on user request
+// Note: Image 3 is a placeholder for now
+// Note: Image 6 link seems partial or incorrect, using a generic placeholder. Let's assume the user meant the base image or find a better one if possible.
+// Let's try to get the base image for #6: https://i.imgur.com/WicaBr7.jpeg (Removed _d.webp?...)
+
 const imgurLinks = [
-    "https://i.imgur.com/pL3JRJy.jpeg", // Album 1: First Encounter
-    "https://i.imgur.com/o8gR9r5.jpeg", // Album 2: Confession
-    "https://i.imgur.com/FkUjH7s.jpeg", // Album 3: Whispers & Cafe Dreams
-    "https://i.imgur.com/L1m0k5o.jpeg", // Album 4: Study Buddies
-    "https://i.imgur.com/rAnDOmN.jpeg", // Album 5: Pouch Exchange
-    "https://i.imgur.com/9mEzAqY.jpeg", // Album 6: You and Me to Us
+    "https://i.imgur.com/nX5MPO4.jpeg", // 1. First Encounter
+    "https://i.imgur.com/4QJIaV3.jpeg", // 2. Confession
+    placeholderImageUrl("whispers", 400, 225), // 3. Placeholder for Whispers & Cafe Dreams
+    "https://i.imgur.com/HrPjQyS.png", // 4. Study Buddies
+    "https://i.imgur.com/WPiDZhs.jpeg", // 5. Pouch Exchange
+    "https://i.imgur.com/WicaBr7.jpeg", // 6. You and Me to Us (Corrected link)
 ];
 
 export const timelineEvents: TimelineEvent[] = [
@@ -48,7 +52,7 @@ export const timelineEvents: TimelineEvent[] = [
     title: 'Whispers & Cafe Dreams ☕',
     description: 'From shy "Btw Hi" whispers to "cafe hai kya?" moments, building memories one interaction at a time.',
     icon: Sparkles,
-    imageUrl: imgurLinks[2],
+    imageUrl: imgurLinks[2], // Using placeholder for #3
   },
   {
     id: 4,

@@ -6,23 +6,24 @@
   :root {
     /* Refined Pastel Theme - Lighter background, softer contrasts */
     --background: 300 100% 99.5%; /* Even lighter lavender */
-    --foreground: 340 15% 40%; /* Slightly darker, muted pink for text */
+    /* Using a dark, muted pink/purple instead of black for foreground */
+    --foreground: 340 15% 30%; /* Darker, muted pink/purple for text */
 
     --card: 340 100% 98%; /* Very light pink card */
-    --card-foreground: 340 15% 35%; /* Darker card text for readability */
+    --card-foreground: 340 15% 25%; /* Darker card text for readability */
 
     --popover: 340 100% 98%;
-    --popover-foreground: 340 15% 30%;
+    --popover-foreground: 340 15% 25%; /* Darker popover text */
 
     --primary: 350 100% 88%; /* Softer Pink #FFC4CE - Adjusted HSL */
     --primary-foreground: 340 50% 15%; /* Darker Pink for contrast on primary */
     --primary-highlight: 350 100% 78%; /* Brighter Pink for heading highlight */
 
     --secondary: 240 60% 98%; /* Very Light Lavender #F0F0FF */
-    --secondary-foreground: 240 25% 40%; /* Muted lavender text */
+    --secondary-foreground: 240 25% 35%; /* Muted lavender text (Slightly darker) */
 
     --muted: 240 30% 96%; /* Slightly darker soft lavender */
-    --muted-foreground: 240 15% 60%; /* Lighter muted text */
+    --muted-foreground: 240 15% 55%; /* Lighter muted text (Slightly darker) */
 
     --accent: 5 85% 80%;   /* Softer Coral #FFACA5 */
     --accent-foreground: 5 50% 20%; /* Darker accent text */
@@ -56,13 +57,14 @@
   .dark {
      /* Define dark theme if needed, otherwise fallback might be okay */
     --background: 240 10% 10%; /* Dark blue/purple */
-    --foreground: 240 10% 95%; /* Very light gray */
+    /* Lighter foreground for dark mode */
+    --foreground: 240 10% 90%; /* Light gray/lavender */
 
     --card: 240 10% 15%;
-    --card-foreground: 240 10% 95%;
+    --card-foreground: 240 10% 90%; /* Lighter card text */
 
     --popover: 240 10% 10%;
-    --popover-foreground: 240 10% 95%;
+    --popover-foreground: 240 10% 90%; /* Lighter popover text */
 
     --primary: 350 90% 70%; /* Brighter pink for dark mode */
     --primary-foreground: 350 20% 10%;
@@ -70,10 +72,10 @@
 
 
     --secondary: 240 20% 25%; /* Darker lavender */
-    --secondary-foreground: 240 30% 90%;
+    --secondary-foreground: 240 30% 85%; /* Lighter secondary text */
 
     --muted: 240 10% 20%;
-    --muted-foreground: 240 10% 65%;
+    --muted-foreground: 240 10% 60%; /* Slightly lighter muted text */
 
     --accent: 5 80% 65%; /* Brighter coral */
     --accent-foreground: 5 20% 95%;

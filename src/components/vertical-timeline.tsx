@@ -26,6 +26,11 @@ const getIconForEvent = (title: string): React.ElementType => {
   return Calendar; // Default icon
 };
 
+// Helper function for placeholder
+const placeholderImageUrl = (seed: string, width = 400, height = 225) =>
+  `https://picsum.photos/seed/${seed}/${width}/${height}`;
+
+
 export const VerticalTimeline: React.FC<VerticalTimelineProps> = ({ events }) => {
     const timelineRef = useRef<HTMLDivElement>(null);
 
@@ -101,7 +106,7 @@ export const VerticalTimeline: React.FC<VerticalTimelineProps> = ({ events }) =>
                            objectFit="cover"
                            className="transition-transform duration-500 ease-out group-hover:scale-105" // Slower, smoother scale
                            // Add error handling / placeholder
-                            onError={(e) => { (e.target as HTMLImageElement).src = placeholderImageUrl('error', 400, 225); }}
+                            onError={(e) => { (e.target as HTMLImageElement).src = placeholderImageUrl(event.id.toString(), 400, 225); }} // Use placeholder function on error
                            unoptimized={event.imageUrl.startsWith('https://i.imgur.com')} // Consider unoptimized for Imgur if needed
                          />
                        </div>
@@ -117,7 +122,3 @@ export const VerticalTimeline: React.FC<VerticalTimelineProps> = ({ events }) =>
     </div>
   );
 };
-
-// Helper function for placeholder - might not be needed if all images are direct links now
-const placeholderImageUrl = (seed: string, width = 400, height = 225) =>
-  `https://picsum.photos/seed/${seed}/${width}/${height}`;
