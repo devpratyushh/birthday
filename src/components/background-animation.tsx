@@ -1,9 +1,17 @@
 "use client";
-import React from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Heart, Star } from 'lucide-react'; // Or use custom SVGs/images
 
 const BackgroundAnimation = () => {
-  const items = React.useMemo(() => {
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  const items = useMemo(() => {
+    if (!mounted) return []; // Don't generate items until mounted
+
     const elements = [];
     // Add hearts
     for (let i = 0; i < 10; i++) {
@@ -44,7 +52,8 @@ const BackgroundAnimation = () => {
       );
     }
     return elements;
-  }, []);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [mounted]); // Only recalculate when mounted state changes
 
   return (
     <div className="fixed inset-0 pointer-events-none overflow-hidden -z-10">
