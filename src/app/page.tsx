@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Countdown } from '@/components/countdown';
 import { Timeline } from '@/components/timeline';
 import BirthdayLetter from '@/components/birthday-letter';
@@ -11,8 +11,6 @@ import { Heart } from 'lucide-react'; // Icon for separator
 // Define the target date: April 30th, 2024, 00:00:00 IST
 // Note: JavaScript Date month is 0-indexed, so April is 3.
 // We need to consider the Indian Standard Time (IST) offset UTC+5:30
-// Easiest way is usually to define in UTC and let browser handle local time,
-// but since the requirement is specific (00:00 AM IST), let's be explicit.
 // April 30, 2024 00:00:00 IST is April 29, 2024 18:30:00 UTC
 const targetDate = new Date(Date.UTC(2024, 3, 29, 18, 30, 0)); // 3 is April
 
@@ -36,61 +34,79 @@ const timelineEvents = [
     date: "Unexpected Day",
     title: "First Encounter (Sarkari School)",
     description: "The day life changed when I unexpectedly met someone special (very gora!) in school.",
-    // imageUrl: "https://picsum.photos/400/225?random=1" // Placeholder
+    imageUrl: "https://picsum.photos/400/225?random=1" // Placeholder
   },
   {
     date: "A Few Days Later",
     title: "The Confession",
     description: "Gathered the courage to confess my feelings, drawn by something magical about you.",
-     // imageUrl: "https://picsum.photos/400/225?random=2"
+     imageUrl: "https://picsum.photos/400/225?random=2"
   },
     {
     date: "Late Night Talks",
     title: "All Night Conversation",
     description: "Even though the proposal didn't go as planned, we talked the entire night. The start of many long conversations.",
-    // imageUrl: "https://picsum.photos/400/225?random=3"
+    imageUrl: "https://picsum.photos/400/225?random=3"
   },
   {
     date: "Exam Season",
     title: "High School Romance Begins",
     description: "Whispering 'Btw Hi', asking 'cafe hai kya?', exchanging pouches, and sharing chocolates during exams. The best month!",
-   // imageUrl: "https://picsum.photos/400/225?random=4"
+   imageUrl: "https://picsum.photos/400/225?random=4"
   },
     {
     date: "Study Sessions",
     title: "ITF & English Lit",
     description: "Finding excuses to talk, like teaching ITF or discussing English literature... leading to 4-hour chats!",
-    // imageUrl: "https://picsum.photos/400/225?random=5"
+    imageUrl: "https://picsum.photos/400/225?random=5"
   },
   {
     date: "Now",
     title: "From 'You & Me' to 'Us'",
     description: "It's been a journey, but nothing compared to the one ahead. Holding your hand, once and for all.",
-    // imageUrl: "https://picsum.photos/400/225?random=6"
+    imageUrl: "https://picsum.photos/400/225?random=6"
   },
     {
     date: "April 30th",
     title: "Happy Birthday, Anandita!",
     description: "Celebrating the first of many birthdays together. Welcome to adulting! Love youuuu babe!",
-    // imageUrl: "https://picsum.photos/400/225?random=7"
+    imageUrl: "https://picsum.photos/400/225?random=7" // Use a celebratory image
   },
 ];
 // --- End Timeline Events ---
 
 
 export default function Home() {
-  const [showLetter, setShowLetter] = useState(new Date() >= targetDate);
+   // Check initial state based on current time vs target time
+   const [showLetter, setShowLetter] = useState(() => new Date() >= targetDate);
+
+   useEffect(() => {
+    // If the letter isn't shown yet, set up an interval to check if the time has passed.
+    // This handles cases where the page is loaded before the target time.
+    if (!showLetter) {
+      const intervalId = setInterval(() => {
+        if (new Date() >= targetDate) {
+          setShowLetter(true);
+          clearInterval(intervalId); // Clear interval once the time is reached
+        }
+      }, 1000); // Check every second
+
+      // Cleanup interval on component unmount
+      return () => clearInterval(intervalId);
+    }
+  }, [showLetter]); // Re-run effect if showLetter changes
+
 
   const handleCountdownComplete = () => {
     setShowLetter(true);
   };
 
   return (
-    <main className="flex flex-col items-center justify-center min-h-screen p-4 md:p-8 relative z-10">
+    <main className="flex flex-col items-center justify-center min-h-screen p-4 md:p-8 relative z-10 overflow-x-hidden">
        <BackgroundAnimation />
 
       {!showLetter ? (
-        <div className="flex flex-col items-center w-full space-y-12">
+        <div className="flex flex-col items-center w-full space-y-12 z-10">
            <h1 className="text-4xl md:text-5xl font-extrabold text-center text-primary drop-shadow-lg mt-8">
             For My Dearest Pookie ❤️
           </h1>
