@@ -1,6 +1,7 @@
+
 'use client';
 import React, { useEffect, useState } from 'react';
-import { Heart, Star } from 'lucide-react'; // Using lucide icons
+import { Heart, Star, BookOpen, Pencil, GraduationCap } from 'lucide-react'; // Added JEE related icons
 
 interface AnimatedIcon {
   id: number;
@@ -10,10 +11,12 @@ interface AnimatedIcon {
   animationClass: string;
 }
 
+const ICONS = [Heart, Star, BookOpen, Pencil, GraduationCap]; // Include new icons
+
 const BackgroundAnimation: React.FC = () => {
   const [icons, setIcons] = useState<AnimatedIcon[]>([]);
   const [isClient, setIsClient] = useState(false);
-  const numIcons = 25; // Increased number of icons
+  const numIcons = 30; // Slightly increased number of icons
 
   useEffect(() => {
     setIsClient(true); // Ensure this runs only on the client
@@ -24,14 +27,53 @@ const BackgroundAnimation: React.FC = () => {
 
     const generateIcons = () => {
       const newIcons: AnimatedIcon[] = [];
+      const iconTypesCount = ICONS.length;
       for (let i = 0; i < numIcons; i++) {
-        const IconComponent = Math.random() > 0.4 ? Heart : Star; // More hearts
+        // Choose an icon - slightly more hearts and stars
+        let IconComponent;
+        const rand = Math.random();
+        if (rand < 0.35) IconComponent = Heart;
+        else if (rand < 0.65) IconComponent = Star;
+        else IconComponent = ICONS[Math.floor(Math.random() * iconTypesCount)];
+
+
         const size = Math.random() * 15 + 10; // Size between 10px and 25px
         const top = `${Math.random() * 100}%`;
         const left = `${Math.random() * 100}%`;
-        const animationDuration = `${Math.random() * 5 + 4}s`; // Duration 4s to 9s
-        const animationDelay = `${Math.random() * 5}s`; // Delay 0s to 5s
-        const zIndex = Math.floor(Math.random() * 3); // z-index 0, 1, or 2
+        const animationDuration = `${Math.random() * 8 + 5}s`; // Duration 5s to 13s (slower overall)
+        const animationDelay = `${Math.random() * 6}s`; // Delay 0s to 6s
+        const zIndex = Math.floor(Math.random() * 2); // z-index 0 or 1 (keep behind content)
+        const opacity = Math.random() * 0.4 + 0.1; // Lower opacity for subtlety (0.1 to 0.5)
+
+        let colorClass = '';
+        let animationClass = '';
+
+        switch (IconComponent) {
+            case Heart:
+                colorClass = 'text-primary/30'; // Softer pink
+                animationClass = 'animate-float';
+                break;
+            case Star:
+                colorClass = 'text-accent/40'; // Softer coral/gold
+                animationClass = 'animate-twinkle';
+                break;
+            case BookOpen:
+                 colorClass = 'text-secondary-foreground/20'; // Muted secondary color
+                 animationClass = 'animate-float'; // Can use float or a new slow drift
+                 break;
+            case Pencil:
+                 colorClass = 'text-muted-foreground/30'; // Muted greyish
+                 animationClass = 'animate-twinkle'; // Can use twinkle or drift
+                 break;
+            case GraduationCap:
+                colorClass = 'text-foreground/15'; // Very subtle foreground
+                animationClass = 'animate-float';
+                break;
+            default:
+                 colorClass = 'text-muted-foreground/20';
+                 animationClass = 'animate-twinkle';
+        }
+
 
         newIcons.push({
           id: i,
@@ -44,9 +86,10 @@ const BackgroundAnimation: React.FC = () => {
             animationDelay,
             animationDuration,
             zIndex,
+            opacity: opacity, // Apply random opacity directly
           },
-          colorClass: IconComponent === Heart ? 'text-primary/20' : 'text-accent/30', // Different subtle colors
-          animationClass: IconComponent === Heart ? 'animate-float' : 'animate-twinkle', // Different animations
+          colorClass: colorClass,
+          animationClass: animationClass,
         });
       }
       setIcons(newIcons);
@@ -54,10 +97,7 @@ const BackgroundAnimation: React.FC = () => {
 
      generateIcons(); // Generate on mount
 
-    // Optional: Regenerate icons periodically or on interaction?
-    // For now, they generate once on mount.
-
-  }, [isClient]); // Depend on isClient to ensure client-side execution
+  }, [isClient]); // Depend on isClient
 
   if (!isClient) {
     return null; // Render nothing on the server
@@ -70,8 +110,8 @@ const BackgroundAnimation: React.FC = () => {
           key={id}
           className={`lucide absolute ${colorClass} ${animationClass}`}
           style={style}
-          fill="currentColor" // Fill the icons
-          strokeWidth={0} // Remove stroke for filled look
+          fill="currentColor"
+          strokeWidth={Icon === Heart || Icon === Star ? 0 : 0.5} // Add thin stroke to study icons
         />
       ))}
     </div>
@@ -79,24 +119,3 @@ const BackgroundAnimation: React.FC = () => {
 };
 
 export default BackgroundAnimation;
-
-// Add keyframes to globals.css
-/*
-@keyframes float {
-  0%, 100% { transform: translateY(0); opacity: 0.7; }
-  50% { transform: translateY(-20px); opacity: 1; }
-}
-
-@keyframes twinkle {
-  0%, 100% { opacity: 0.3; transform: scale(0.9); }
-  50% { opacity: 0.8; transform: scale(1); }
-}
-
-.animate-float {
-  animation: float linear infinite;
-}
-
-.animate-twinkle {
-   animation: twinkle linear infinite;
-}
-*/

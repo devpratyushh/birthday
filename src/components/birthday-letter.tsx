@@ -1,46 +1,51 @@
+
 'use client';
 
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { ScrollArea } from '@/components/ui/scroll-area';
 
 const BirthdayLetter: React.FC = () => {
   return (
-    <Card className="w-full max-w-2xl mx-auto shadow-lg bg-background/90 backdrop-blur-sm animate-fade-in">
-      <CardHeader className="text-center">
-        <CardTitle className="text-3xl font-bold text-primary drop-shadow-md">
-          Happy Birthday, My Dearest!
-        </CardTitle>
-      </CardHeader>
-      <CardContent className="text-lg text-foreground leading-relaxed space-y-4">
-        <p>
-          My Love,
-        </p>
-        <p>
-          Words feel inadequate to express the depth of my feelings for you, especially today, on your special day. Happy Birthday! 🎉
-        </p>
-        <p>
-          From the moment you came into my life, everything became brighter, more colourful, more meaningful. You are the melody to my heart's song, the sunshine on my cloudy days, and my absolute favourite person in the entire world.
-        </p>
-        <p>
-          Remember [Insert a sweet shared memory here]? Thinking back on moments like that always brings a smile to my face. Every memory we've created together is a treasure I hold dear.
-        </p>
-        <p>
-          I admire so many things about you – your kindness, your strength, your laugh, the way you [mention a specific positive trait or habit]. You inspire me every single day.
-        </p>
-        <p>
-          I hope today is filled with everything that brings you joy – laughter, love, cake (lots of cake!), and the company of those who cherish you. May this year ahead be your best one yet, full of adventures, success, and endless happiness.
-        </p>
-        <p>
-          Know that I'm celebrating you today and every day. Thank you for being you.
-        </p>
-        <p>
-          With all my love, always and forever,
-        </p>
-        <p className="text-right font-semibold">
-          Your [Your Name/Nickname]
-        </p>
-      </CardContent>
-    </Card>
+    <ScrollArea className="h-[80vh] w-full max-w-3xl mx-auto"> {/* Added ScrollArea */}
+        <Card className="w-full mx-auto shadow-lg bg-card/95 backdrop-blur-sm animate-fade-in border-primary/20">
+        <CardHeader className="text-center border-b border-primary/10 pb-4">
+            <CardTitle className="text-3xl md:text-4xl font-bold text-primary drop-shadow-md">
+            A Special Message For You! 💌
+            </CardTitle>
+        </CardHeader>
+        <CardContent className="text-base md:text-lg text-foreground leading-relaxed space-y-5 p-6 md:p-8">
+            {/* Splitting the letter into paragraphs */}
+            <p>
+            Hailo Hailoo! Hailoo to my cutieee pookieee kuchupuchuuuu, Hiii Anandita, kaisi hai meri jaaan!
+            </p>
+            <p>
+            Dur dur se udte udte khabar aai hai ki aaj kisi ka bday and to humne v socha ki thoda Happie Happie Birthdayyy hum v bol dee anddd yoo welcome to adulting, life’s gonna change a lot for both of us in the next couple of years, so brace yourself for all the fun things life has to offer – Oh shitt I sound like sandeep maheshwari but from chor bazaar lol (tried to be funny part 1 😂)
+            </p>
+            <p>
+            Life has never been same since I unexpectedly met someone (very gora) in my sarkari school and things aren’t the same since the first “ye aage kyu hai” to you yelling “pandittt”, My love, this pandit has been touched by your embrace and couldn’t thank god enough for this cozzz – “Rab ne bana di jodi”.
+            </p>
+            <p>
+            From the very first time I saw you to that confession in just two days, there was something magical about you which drew me more and more towards you, talking an entire night even though my “proposal” didn’t work out as I expected. Wait.. I know my expectations were crazy to go and ask out someone who I have just met but you know Anandita there was something about you which made me believe that if i did the right efforts and right things i would have you, i would call you “mine” and look here we are – from you and me to us, It has been a long journey but nothing in front of the journey we have ahead of us and I wish to hold your hand, to hold your hand “once and for all”.
+            </p>
+            <p>
+            It’s just the beginning of the many more birthdays we would celebrate together, with the little nok-jhok with the little kalesh and aaa lot of funnn which we have together in this journey called life or better “our life”.
+            </p>
+             <p>
+             The high school romance which I always used to talk about has just began there’s a lot to come my love and yrr when I look back at the time we had together I am sure nothing can ever top that, from being in despression ki kal ke exam ke lie kch to padhe hi nahi hai to the fact that i would be able to see you, it truly was an experience love, from whispering “Btw Hi” to the “cafe hai kya” to the cute little pouch exchange we had it all holdssss a very very deep place in my heard and how could i forget the chocolates we shared during the exams, I had the best 1 month of my life with you and not to mention me trying to talk to you chche wo ITF padhane ke bahane ya english literature ki random baate and guess what we talked like 4 hours loll sooo yk it ki hm kitna bolte hai and agar hm avi nahi ruke to pages badh jayengi and yk me gareeb blinkit wale paishe le lenge extra lol.
+             </p>
+            <p>
+            Ik Anandita this is not the prettiest letter one could give neither this is the best but love this is filled with emotions and my love for you, I don’t know when I will get to see you next but until then its your 2010 was Situaa saying “I love youu babe I lovee you aaa lott 💗” , I have said this quite a lot and I am saying this again If you would have no one by your side you will find me, I don’t want to be very dramatic coz ik actions greater than wordsss and amidst all the daily chaos I promise to be always yours babe!
+            </p>
+
+            {/* Signature */}
+            <p className="text-right font-semibold pt-4 text-primary">
+              With all my love, <br />
+              Your Situaa
+            </p>
+        </CardContent>
+        </Card>
+    </ScrollArea>
   );
 };
 
