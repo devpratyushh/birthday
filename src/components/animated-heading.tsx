@@ -1,26 +1,51 @@
+
 "use client";
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { cn } from '@/lib/utils';
 import { Heart } from 'lucide-react';
 
 const AnimatedHeading: React.FC = () => {
-  // Simplified: No need for complex state changes for this heading
+  const [displayText, setDisplayText] = useState('Anandita');
+  const [isFadingOut, setIsFadingOut] = useState(false);
+
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      setIsFadingOut(true); // Start fade out
+      setTimeout(() => {
+        setDisplayText('Babe');
+        setIsFadingOut(false); // Reset fading state after text changes
+      }, 400); // Duration of fade-out animation
+    }, 2000); // Delay before starting the animation
+
+    return () => clearTimeout(timeoutId);
+  }, []);
+
   return (
     <div className="text-center space-y-2 mb-4 md:mb-6"> {/* Added margin bottom */}
       <h1 className="text-4xl md:text-6xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-primary via-accent to-pink-400 drop-shadow-lg animate-fade-in inline-flex items-center gap-2">
         Happy Birthdayy
         <Heart className="w-8 h-8 md:w-10 md:h-10 text-primary animate-pulse inline-block" fill="currentColor" />
       </h1>
-      {/* Removed the Anandita/Babe replacement logic and the "( again 😉 )" text */}
-       <p className="text-lg md:text-xl text-muted-foreground animate-fade-in animation-delay-300 font-serif">
-         To my dearest Pookie!
+       <p className="text-lg md:text-xl text-muted-foreground animate-fade-in animation-delay-300 font-serif relative inline-block">
+         To my dearest{' '}
+         <span className="inline-block relative">
+           {/* Strikethrough element */}
+           {displayText === 'Anandita' && (
+             <span className="strikethrough-animated absolute left-0 top-1/2 w-full h-[2px] bg-destructive origin-left"></span>
+           )}
+           {/* Animated text change */}
+           <span className={cn(isFadingOut ? 'animate-fade-out-up' : 'animate-fade-in-down', 'inline-block')}>
+             {displayText}
+           </span>
+         </span>
+         !
        </p>
     </div>
   );
 };
 
-// Add animation-delay helper if not present in Tailwind config
+// Add animation-delay helper and other styles if not present in Tailwind config or globals.css
 const styles = `
 .animation-delay-300 { animation-delay: 300ms; }
 
@@ -42,6 +67,30 @@ const styles = `
   animation: fade-in 0.8s ease-out forwards;
 }
 
+@keyframes strikethrough {
+  0% { width: 0; }
+  100% { width: 100%; }
+}
+.strikethrough-animated {
+   animation: strikethrough 0.5s ease-out forwards 1.8s; /* Added delay */
+   /* Removed position: absolute and after pseudo-element logic */
+}
+
+@keyframes fade-out-up {
+  from { opacity: 1; transform: translateY(0); }
+  to { opacity: 0; transform: translateY(-10px); }
+}
+.animate-fade-out-up {
+  animation: fade-out-up 0.4s ease-out forwards;
+}
+
+@keyframes fade-in-down {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.animate-fade-in-down {
+  animation: fade-in-down 0.4s ease-in forwards;
+}
 `;
 if (typeof window !== 'undefined') {
   const styleSheetId = 'animated-heading-styles';

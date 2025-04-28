@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useEffect, memo, useRef } from 'react';
@@ -38,29 +39,34 @@ interface FlipUnitProps {
 const FlipUnit: React.FC<FlipUnitProps> = memo(({ currentValue, label }) => {
   const [isFlipping, setIsFlipping] = useState(false);
   const previousValueRef = useRef(currentValue);
+  const [displayValue, setDisplayValue] = useState(currentValue);
   const [hasMounted, setHasMounted] = useState(false);
 
-  const formattedValue = String(currentValue).padStart(2, '0');
+  const formattedDisplayValue = String(displayValue).padStart(2, '0');
   const formattedPreviousValue = String(previousValueRef.current).padStart(2, '0');
 
-  useEffect(() => {
+   useEffect(() => {
     setHasMounted(true);
   }, []);
 
+
   useEffect(() => {
-    if (!hasMounted || currentValue === previousValueRef.current) {
-      previousValueRef.current = currentValue;
-      return;
-    }
+     if (!hasMounted || currentValue === previousValueRef.current) {
+       setDisplayValue(currentValue); // Ensure initial render is correct
+       previousValueRef.current = currentValue;
+       return;
+     }
 
     setIsFlipping(true);
     const timer = setTimeout(() => {
-      setIsFlipping(false);
-      previousValueRef.current = currentValue;
-    }, 480); // Animation duration is 0.5s, so wait slightly less
+      setDisplayValue(currentValue); // Update display value after flip starts visually
+      previousValueRef.current = currentValue; // Update previous value ref
+      setIsFlipping(false); // End the flipping state *after* visual update
+    }, 490); // Animation duration is 0.5s
 
     return () => clearTimeout(timer);
   }, [currentValue, hasMounted]);
+
 
   const commonDigitClasses = "text-3xl md:text-5xl font-bold tabular-nums";
   const commonHalfClasses = "absolute inset-0 flex items-center justify-center overflow-hidden";
@@ -68,23 +74,23 @@ const FlipUnit: React.FC<FlipUnitProps> = memo(({ currentValue, label }) => {
   return (
     <div className="flex flex-col items-center text-center w-16 h-24 md:w-24 md:h-32">
       <div className="relative w-full h-full perspective-[500px]">
-        {/* Static Bottom Half (Current Value) */}
+        {/* Static Bottom Half (Shows current display value) */}
         <div className={cn(
           commonHalfClasses,
           "top-1/2 h-1/2 rounded-b-lg bg-primary text-primary-foreground pt-1 items-start" // Align to top edge
         )}>
-          <span className={commonDigitClasses}>{formattedValue}</span>
+          <span className={commonDigitClasses}>{formattedDisplayValue}</span>
         </div>
 
-        {/* Static Top Half (Current Value) */}
+        {/* Static Top Half (Shows current display value) */}
         <div className={cn(
           commonHalfClasses,
           "bottom-1/2 h-1/2 rounded-t-lg bg-primary/80 text-primary-foreground pb-1 items-end" // Align to bottom edge
         )}>
-          <span className={commonDigitClasses}>{formattedValue}</span>
+          <span className={commonDigitClasses}>{formattedDisplayValue}</span>
         </div>
 
-        {/* Flipping Top Half (Previous Value) - Flips Down */}
+        {/* Flipping Top Half (Shows previous value) - Flips Down */}
         <div
           className={cn(
             commonHalfClasses,
@@ -92,24 +98,25 @@ const FlipUnit: React.FC<FlipUnitProps> = memo(({ currentValue, label }) => {
             "origin-bottom transform-style-3d backface-hidden",
             isFlipping ? 'animate-flip-down' : ''
           )}
-          style={{ zIndex: isFlipping ? 3 : 1 }} // Ensure it's on top during flip
-          key={`${label}-top-flip-${previousValueRef.current}`} // Key helps reset state if needed
+          style={{ zIndex: 3 }} // Ensure it's on top during flip
+          key={`${label}-top-flip-${previousValueRef.current}`} // Key helps react detect change
         >
           <span className={commonDigitClasses}>{formattedPreviousValue}</span>
         </div>
 
-         {/* Flipping Bottom Half (Current Value) - Appears from Top */}
+         {/* Flipping Bottom Half (Shows new current value) - Appears from Top */}
          <div
           className={cn(
             commonHalfClasses,
             "top-1/2 h-1/2 rounded-b-lg bg-primary/80 text-primary-foreground pt-1 items-start", // Align to top edge
             "origin-top transform-style-3d backface-hidden",
-            isFlipping ? 'animate-flip-up' : ''
+             // Apply flip-up animation *only when flipping*
+            isFlipping ? 'animate-flip-up' : 'transform rotate-x-90' // Start flipped up if not animating
           )}
-          style={{ zIndex: isFlipping ? 2 : 0 }} // Ensure it's behind the top flip but above static
-           key={`${label}-bottom-flip-${currentValue}`}
+          style={{ zIndex: 2 }} // Ensure it's behind the top flip but above static
+           key={`${label}-bottom-flip-${currentValue}`} // Key helps react detect change
         >
-          <span className={commonDigitClasses}>{formattedValue}</span>
+          <span className={commonDigitClasses}>{formattedDisplayValue}</span>
         </div>
 
         {/* Divider line - Adjusted position and color */}
@@ -140,10 +147,11 @@ export const Countdown: React.FC<CountdownProps> = ({ targetDate, onComplete }) 
 
     if (initialTime === null) {
       console.log("Countdown initial check detected completion.");
-      onComplete();
+      onComplete(); // Call immediately if already past
       return;
     }
 
+    // Set up the interval
     intervalRef.current = setInterval(() => {
       const newTimeLeft = calculateTimeLeft(targetTime);
       setCurrentTimeLeft(newTimeLeft);
@@ -155,19 +163,20 @@ export const Countdown: React.FC<CountdownProps> = ({ targetDate, onComplete }) 
           clearInterval(intervalRef.current);
         }
       }
-    }, 1000);
+    }, 1000); // Update every second
 
+    // Cleanup function
     return () => {
       if (intervalRef.current) {
         clearInterval(intervalRef.current);
       }
     };
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [targetTime, onComplete]);
+  }, [targetTime, onComplete]); // Rerun effect only if targetTime or onComplete changes
 
 
   if (!isClient || currentTimeLeft === null) {
-    // Render placeholders
+    // Render placeholders or nothing while hydrating or if completed
     return (
         <div className="flex justify-center items-start space-x-2 sm:space-x-4 md:space-x-6 p-4">
             {(['days', 'hours', 'minutes', 'seconds']).map((label) => (
@@ -200,26 +209,4 @@ export const Countdown: React.FC<CountdownProps> = ({ targetDate, onComplete }) 
 };
 
 // Ensure necessary CSS for perspective, backface-visibility, and flip animations
-// are defined in globals.css or injected elsewhere.
-/* Make sure these keyframes and utility classes are in globals.css:
-.perspective-\\[500px\\] { perspective: 500px; }
-.transform-style-3d { transform-style: preserve-3d; }
-.backface-hidden { backface-visibility: hidden; -webkit-backface-visibility: hidden; }
-
-@keyframes flip-down {
-  0% { transform: rotateX(0deg); }
-  100% { transform: rotateX(-90deg); }
-}
-.animate-flip-down {
-  animation: flip-down 0.5s ease-in forwards;
-}
-
-@keyframes flip-up {
-  0% { transform: rotateX(90deg); }
-  100% { transform: rotateX(0deg); }
-}
-.animate-flip-up {
-   Add slight delay to start after top flip finishes
-   animation: flip-up 0.5s ease-out forwards;
-}
-*/
+// are defined in globals.css.

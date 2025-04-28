@@ -1,3 +1,4 @@
+
 "use client";
 
 import React, { useEffect, useRef } from 'react';
@@ -92,7 +93,7 @@ export const VerticalTimeline: React.FC<VerticalTimelineProps> = ({ events }) =>
             </CardHeader>
             <CardContent className="flex-grow flex flex-col p-4 pt-0">
               {event.imageUrl ? (
-                 <div className="relative w-full aspect-video mb-3 rounded-md overflow-hidden">
+                 <div className="relative w-full aspect-video mb-3 rounded-md overflow-hidden group"> {/* Added group class */}
                   <Image
                     src={event.imageUrl}
                     alt={event.title}
@@ -103,15 +104,15 @@ export const VerticalTimeline: React.FC<VerticalTimelineProps> = ({ events }) =>
                     placeholder="blur"
                     blurDataURL="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==" // Simple blur placeholder
                     onError={(e) => {
-                      // console.error("Failed to load image:", event.imageUrl);
+                      // Fallback logic if image fails to load
                       const target = e.target as HTMLImageElement;
-                      target.style.display = 'none'; // Hide broken image
+                      target.style.display = 'none'; // Hide broken image element
                       const parent = target.parentElement;
-                      if (parent) {
+                      if (parent && !parent.querySelector('.placeholder-text')) { // Prevent adding multiple placeholders
                         parent.classList.add('bg-secondary', 'flex', 'items-center', 'justify-center');
                         const placeholderText = document.createElement('p');
-                        placeholderText.className = 'text-xs text-muted-foreground';
-                        placeholderText.textContent = `Image: ${event.title}`;
+                        placeholderText.className = 'text-xs text-muted-foreground placeholder-text'; // Added class
+                        placeholderText.textContent = `Image not found: ${event.title}`;
                         parent.appendChild(placeholderText);
                       }
                     }}

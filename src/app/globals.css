@@ -1,10 +1,7 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-
-body {
-  font-family: var(--font-geist-sans), system-ui, sans-serif;
-}
 
 @layer base {
   :root {
@@ -101,18 +98,19 @@ body {
     --sidebar-border: 240 3.7% 15.9%;
     --sidebar-ring: 217.2 91.2% 59.8%;
   }
-}
 
-@layer base {
+  /* Global styles */
   * {
     @apply border-border;
     /* Smooth scrolling for anchors */
     scroll-behavior: smooth;
   }
+
   body {
     @apply bg-background text-foreground;
     min-height: 100vh;
     overflow-x: hidden; /* Prevent horizontal scroll on body */
+    font-family: var(--font-geist-sans), system-ui, sans-serif;
   }
 
   /* Simple floating hearts animation */
@@ -143,21 +141,24 @@ body {
     animation: fade-in 1s ease-out forwards;
   }
 
-  /* Strikethrough animation */
-  @keyframes strikethrough {
-    0% { width: 0; }
-    100% { width: 100%; }
-  }
-  .strikethrough-animated::after {
-    content: '';
-    position: absolute;
-    left: 0;
-    top: 50%;
-    height: 2px; /* Adjust thickness */
-    background-color: hsl(var(--destructive)); /* Or use primary/accent color */
-    animation: strikethrough 0.5s ease-out forwards;
-    transform: translateY(-50%); /* Center the line vertically */
-  }
+  /* Strikethrough animation (corrected) */
+   @keyframes strikethrough {
+     0% { transform: scaleX(0); }
+     100% { transform: scaleX(1); }
+   }
+   .strikethrough-animated::after {
+     content: '';
+     position: absolute;
+     left: 0;
+     top: 50%;
+     width: 100%; /* Will be scaled by animation */
+     height: 2px; /* Adjust thickness */
+     background-color: hsl(var(--destructive)); /* Or use primary/accent color */
+     animation: strikethrough 0.5s ease-out forwards 1.8s; /* Added delay */
+     transform: translateY(-50%) scaleX(0); /* Center the line vertically and start scaled */
+     transform-origin: left; /* Animate from left */
+   }
+
 
    /* Text reveal/replace animation */
   @keyframes fade-out-up {
@@ -194,6 +195,18 @@ body {
    .animate-pulse-fast {
      animation: pulse-fast 1s cubic-bezier(0.4, 0, 0.6, 1) infinite;
    }
+
+    /* Pulse animation for main heading heart */
+   @keyframes pulse {
+     50% {
+       opacity: .6;
+       transform: scale(1.05);
+     }
+   }
+   .animate-pulse {
+     animation: pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+   }
+
 
    /* Text pulse animation for romantic phrases */
    @keyframes pulse-text {
@@ -232,6 +245,7 @@ body {
    .perspective-\\[500px\\] { perspective: 500px; }
    .transform-style-3d { transform-style: preserve-3d; }
    .backface-hidden { backface-visibility: hidden; -webkit-backface-visibility: hidden; } /* Add vendor prefix */
+
 
    /* --- Vertical Timeline Styles --- */
     .vertical-timeline {
@@ -376,4 +390,5 @@ body {
              max-width: none; /* Allow card to take available width */
         }
     }
+    /* Correct placement for the closing brace of the first @layer base */
 }

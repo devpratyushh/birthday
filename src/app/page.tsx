@@ -3,7 +3,7 @@
 
 import { useState, useEffect } from 'react';
 import { Countdown } from '@/components/countdown';
-import { VerticalTimeline } from '@/components/vertical-timeline'; // Changed import
+import { VerticalTimeline } from '@/components/vertical-timeline';
 import BirthdayLetter from '@/components/birthday-letter';
 import BackgroundAnimation from '@/components/background-animation';
 import { Separator } from '@/components/ui/separator';
@@ -36,7 +36,7 @@ const timelineEvents = [
     date: "Unexpected Day",
     title: "First Encounter",
     description: "The day life changed when I unexpectedly met someone special (very gora!) in school.",
-    imageUrl: "https://picsum.photos/seed/1/300/180" // Use seeded random for consistency
+    imageUrl: "https://picsum.photos/seed/1/300/180"
   },
   {
     date: "A Few Days Later",
@@ -85,6 +85,7 @@ export default function Home() {
    useEffect(() => {
        // Safely check the date on the client after hydration
        const checkDate = () => {
+           // Check if current date is on or after the target date
            if (new Date() >= targetDate) {
                setIsBirthdayTime(true);
            } else {
@@ -95,15 +96,16 @@ export default function Home() {
 
        // Set up interval only if it's not birthday time yet
        let intervalId: NodeJS.Timeout | null = null;
-       if (new Date() < targetDate) {
-           intervalId = setInterval(() => {
-               if (new Date() >= targetDate) {
-                   console.log("Target date reached via interval check!");
-                   setIsBirthdayTime(true);
-                   if(intervalId) clearInterval(intervalId);
-               }
-           }, 1000 * 30); // Check every 30 seconds
-       }
+        if (new Date() < targetDate) {
+            intervalId = setInterval(() => {
+                if (new Date() >= targetDate) {
+                    console.log("Target date reached via interval check!");
+                    setIsBirthdayTime(true);
+                    if(intervalId) clearInterval(intervalId); // Clear interval once target date is reached
+                }
+            }, 1000 * 30); // Check every 30 seconds should be sufficient
+        }
+
 
        // Cleanup interval on component unmount
        return () => {
@@ -114,7 +116,7 @@ export default function Home() {
 
    // Function to be called by Countdown when it finishes
    const handleCountdownComplete = () => {
-     console.log("Countdown complete!");
+     console.log("Countdown complete! Setting birthday time.");
      setIsBirthdayTime(true);
    };
 
@@ -157,5 +159,3 @@ export default function Home() {
     </main>
   );
 }
-
-    
