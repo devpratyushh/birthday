@@ -53,7 +53,7 @@ const timelineEvents = [
     date: "Exam Season",
     title: "High School Romance Begins",
     description: "Whispering 'Btw Hi', asking 'cafe hai kya?', exchanging pouches, and sharing chocolates during exams. The best month!",
-   imageUrl: "httpsum.photos/300/180?random=4"
+   imageUrl: "https://picsum.photos/300/180?random=4" // Corrected URL
   },
     {
     date: "Study Sessions",
