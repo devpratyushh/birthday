@@ -1,10 +1,14 @@
 
 'use client';
 
-import React from 'react';
+import React, { useRef, useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Heart, PartyPopper } from 'lucide-react'; // Import icons for decoration
+import { Heart, PartyPopper, Mic, CheckCircle, AlertCircle } from 'lucide-react'; // Import icons for decoration and voice input
+import { Button } from '@/components/ui/button';
+import { useToast } from '@/hooks/use-toast';
+import { levelConfig } from '@/data/level-config'; // Import level config for video ID
+import YoutubeEmbed from './youtube-embed'; // Import YoutubeEmbed component
 
 // Function to add interactive spans around specific words
 const makeInteractive = (text: string) => {
@@ -29,8 +33,21 @@ const makeInteractive = (text: string) => {
   });
 };
 
+interface BirthdayLetterProps {
+  onLevelComplete: () => void; // Function to call when level is complete
+}
 
-const BirthdayLetter: React.FC = () => {
+
+const BirthdayLetter: React.FC<BirthdayLetterProps> = ({ onLevelComplete }) => {
+  const { toast } = useToast();
+  const scrollAreaRef = useRef<HTMLDivElement>(null);
+  const viewportRef = useRef<HTMLDivElement>(null);
+  const [showPrompt, setShowPrompt] = useState(false);
+  const [isListening, setIsListening] = useState(false);
+  const [transcript, setTranscript] = useState('');
+  const recognitionRef = useRef<SpeechRecognition | null>(null);
+
+
   const letterContent = [
       "Hailo Hailoo! Hailoo to my cutieee my love kuchupuchuuuu, Hiii Anandita, kaisi hai meri jaaan!",
       "Dur dur se udte udte khabar aai hai ki aaj kisi ka bday and to humne v socha ki thoda Happie Happie Birthdayyy hum v bol dee anddd yoo welcome to adulting, life’s gonna change a lot for both of us in the next couple of years, so brace yourself for all the fun things life has to offer – Oh shitt I sound like sandeep maheshwari but from chor bazaar lol (tried to be funny part 1 😂)",
@@ -42,67 +59,240 @@ const BirthdayLetter: React.FC = () => {
     ];
 
 
+  useEffect(() => {
+    const viewportElement = viewportRef.current;
+    if (!viewportElement) return;
+
+    const handleScroll = () => {
+        const { scrollTop, scrollHeight, clientHeight } = viewportElement;
+        // Check if scrolled near the bottom (e.g., within 50px)
+        if (scrollHeight - scrollTop - clientHeight < 50) {
+           if (!showPrompt) { // Only set state if it's not already shown
+               setShowPrompt(true);
+           }
+        } else {
+           // Optional: Hide prompt if scrolled back up
+           // if (showPrompt) {
+           //    setShowPrompt(false);
+           // }
+        }
+    };
+
+    viewportElement.addEventListener('scroll', handleScroll);
+    return () => viewportElement.removeEventListener('scroll', handleScroll);
+  }, [showPrompt]); // Re-run effect if showPrompt changes
+
+  // Setup Speech Recognition
+   useEffect(() => {
+    if (!('webkitSpeechRecognition' in window)) {
+       console.error("Speech recognition not supported in this browser.");
+       // Optionally inform the user
+        // toast({
+        //    variant: "destructive",
+        //    title: "Browser Not Supported",
+        //    description: "Speech recognition is needed for the next step but isn't available here.",
+        //  });
+       return;
+     }
+
+     const SpeechRecognition = window.webkitSpeechRecognition;
+     recognitionRef.current = new SpeechRecognition();
+     const recognition = recognitionRef.current;
+
+     recognition.continuous = false; // Process speech after pause
+     recognition.lang = 'en-US'; // Set language
+     recognition.interimResults = false; // Only get final results
+
+
+      recognition.onresult = (event) => {
+          const last = event.results.length - 1;
+          const command = event.results[last][0].transcript.trim().toLowerCase();
+          console.log('Recognized:', command);
+          setTranscript(command); // Store transcript
+
+          // Check if the command is "i love you"
+           if (command.includes('i love you')) {
+                toast({
+                   title: "Success!",
+                   description: "💖 Level Unlocked! 💖",
+                   className: "bg-green-100 border-green-400 text-green-800", // Custom success style
+                 });
+               onLevelComplete(); // Go to next level
+           } else {
+                toast({
+                   variant: "destructive",
+                   title: "Try Again",
+                   description: `Hmm, I heard "${command}". Please say "I love you" clearly. 😊`,
+                 });
+           }
+          setIsListening(false); // Stop listening animation
+      };
+
+     recognition.onerror = (event) => {
+        console.error('Speech recognition error:', event.error);
+        let errorMessage = "Speech recognition error.";
+        if (event.error === 'no-speech') {
+            errorMessage = "Didn't hear anything. Please try speaking.";
+        } else if (event.error === 'audio-capture') {
+            errorMessage = "Microphone problem. Ensure it's enabled and working.";
+        } else if (event.error === 'not-allowed') {
+            errorMessage = "Permission denied. Please allow microphone access.";
+        }
+         toast({
+            variant: "destructive",
+            title: "Recognition Failed",
+            description: errorMessage,
+          });
+        setIsListening(false); // Stop listening animation
+     };
+
+      recognition.onend = () => {
+          // Don't automatically stop listening state here if continuous is true
+          // For continuous=false, it's okay
+         if (!recognition.continuous) {
+            setIsListening(false);
+         }
+      };
+
+      // Cleanup function
+     return () => {
+       recognition?.stop();
+       recognitionRef.current = null;
+     };
+   }, [onLevelComplete, toast]);
+
+
+   // Function to handle the voice trigger button click
+   const handleVoiceTrigger = async () => {
+     if (!recognitionRef.current) {
+        toast({ variant: "destructive", title: "Error", description: "Speech recognition not initialized." });
+        return;
+     }
+
+     if (isListening) {
+       recognitionRef.current.stop();
+       setIsListening(false);
+     } else {
+        // Request microphone permission
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            // Permission granted, we can now start recognition
+            stream.getTracks().forEach(track => track.stop()); // Stop the track immediately after permission check
+
+            recognitionRef.current.start();
+            setIsListening(true);
+            setTranscript(''); // Clear previous transcript
+             toast({
+                title: "Listening...",
+                description: "Say 'I love you' clearly!",
+             });
+        } catch (err) {
+             console.error("Microphone access denied:", err);
+             toast({
+                variant: "destructive",
+                title: "Microphone Access Denied",
+                description: "Please allow microphone access in your browser settings to proceed.",
+             });
+             setIsListening(false);
+        }
+     }
+   };
+
+
   return (
      <div className="relative w-full max-w-3xl mx-auto animate-letter-float-up pt-6"> {/* Added padding-top */}
-        {/* Floating Decorations - Moved outside ScrollArea */}
+        {/* Floating Decorations - Increased z-index */}
         <Heart
-            className="absolute -top-2 -left-10 w-10 h-10 text-primary/60 animate-gentle-sway opacity-80 z-20" // Increased z-index
+            className="absolute -top-2 -left-10 w-10 h-10 text-primary/60 animate-gentle-sway opacity-80 z-20"
             style={{ animationDelay: '0.2s', animationDuration: '6s' }}
             fill="currentColor"
             strokeWidth={0}
          />
          <PartyPopper
-            className="absolute -top-4 -right-8 w-12 h-12 text-pink-400/70 transform -rotate-12 animate-balloon-float-1 opacity-90 z-20" // Increased z-index
+            className="absolute -top-4 -right-8 w-12 h-12 text-pink-400/70 transform -rotate-12 animate-balloon-float-1 opacity-90 z-20"
              style={{ animationDelay: '0s', animationDuration: '8s' }}
           />
           <Heart
-            className="absolute -bottom-8 -right-12 w-14 h-14 text-accent/70 animate-slow-spin-fade opacity-70 z-20" // Increased z-index
+            className="absolute -bottom-8 -right-12 w-14 h-14 text-accent/70 animate-slow-spin-fade opacity-70 z-20"
             style={{ animationDelay: '0.5s', animationDuration: '18s' }}
             fill="currentColor"
             strokeWidth={0}
           />
            <PartyPopper
-            className="absolute -bottom-6 -left-14 w-10 h-10 text-purple-400/60 transform rotate-10 animate-balloon-float-3 opacity-85 z-20" // Increased z-index
+            className="absolute -bottom-6 -left-14 w-10 h-10 text-purple-400/60 transform rotate-10 animate-balloon-float-3 opacity-85 z-20"
             style={{ animationDelay: '0.3s', animationDuration: '9s' }}
           />
-          {/* Smaller heart */}
+          {/* Smaller hearts and elements */}
           <Heart
-            className="absolute top-1/3 -left-16 w-6 h-6 text-secondary/50 animate-twinkle opacity-60 z-20" // Increased z-index
+            className="absolute top-1/3 -left-16 w-6 h-6 text-secondary/50 animate-twinkle opacity-60 z-20"
             style={{ animationDelay: '0.8s', animationDuration: '7s' }}
             fill="currentColor"
             strokeWidth={0}
           />
-           {/* Another decoration */}
            <Heart
-            className="absolute top-1/2 -right-16 w-8 h-8 text-primary/50 animate-float opacity-70 z-20" // Increased z-index
+            className="absolute top-1/2 -right-16 w-8 h-8 text-primary/50 animate-float opacity-70 z-20"
             style={{ animationDelay: '1s', animationDuration: '10s' }}
             fill="currentColor"
             strokeWidth={0}
            />
 
 
-        {/* Added rounded-xl */}
-        <ScrollArea className="h-[80vh] w-full mx-auto rounded-xl border border-primary/20 shadow-inner">
-            <Card className="w-full mx-auto shadow-xl bg-card/95 backdrop-blur-md border-none rounded-xl relative z-10"> {/* Removed border */}
-            {/* Sticky Header */}
-            <CardHeader className="sticky top-0 z-20 bg-card/90 backdrop-blur-lg text-center border-b border-primary/15 pb-4 pt-6"> {/* Added sticky, top-0, z-index, background, blur */}
-                <CardTitle className="text-3xl md:text-4xl font-bold text-primary-highlight drop-shadow-lg"> {/* Use highlight color, bigger shadow */}
-                A Special Message For You! 💌
-                </CardTitle>
-            </CardHeader>
-            <CardContent className="text-base md:text-lg text-card-foreground leading-relaxed space-y-5 p-6 md:p-8 font-serif"> {/* Changed font slightly */}
-                {letterContent.map((paragraph, index) => (
-                    <p key={index}>{makeInteractive(paragraph)}</p>
-                ))}
+        {/* Scroll Area with Rounded Corners */}
+        <div ref={scrollAreaRef} className="h-[80vh] w-full mx-auto rounded-xl overflow-hidden border border-primary/20 shadow-inner bg-card/95 backdrop-blur-md relative z-10">
+          <ScrollArea ref={viewportRef} className="h-full w-full rounded-xl"> {/* Apply rounded-xl here too */}
+            <Card className="w-full border-none bg-transparent rounded-xl"> {/* Make card transparent */}
+              {/* Sticky Header */}
+              <CardHeader className="sticky top-0 z-20 bg-card/90 backdrop-blur-lg text-center border-b border-primary/15 pb-4 pt-6 rounded-t-xl"> {/* Rounded top */}
+                  <CardTitle className="text-3xl md:text-4xl font-bold text-primary-highlight drop-shadow-lg"> {/* Use highlight color, bigger shadow */}
+                  A Special Message For You! 💌
+                  </CardTitle>
+              </CardHeader>
+              <CardContent className="text-base md:text-lg text-card-foreground leading-relaxed space-y-5 p-6 md:p-8 font-serif">
+                  {letterContent.map((paragraph, index) => (
+                      <p key={index}>{makeInteractive(paragraph)}</p>
+                  ))}
 
-                {/* Signature */}
-                <p className="text-right font-semibold pt-4 text-primary">
-                  With all my love, <br />
-                  Your <span className="interactive-word">Situaa</span>
-                </p>
-            </CardContent>
+                  {/* Signature */}
+                  <p className="text-right font-semibold pt-4 text-primary">
+                    With all my love, <br />
+                    Your <span className="interactive-word">Situaa</span>
+                  </p>
+
+                 {/* Prompt Section - Conditionally Rendered */}
+                 {showPrompt && (
+                     <div className="mt-12 p-6 border-t border-dashed border-accent/50 text-center space-y-4 animate-fade-in">
+                         <h3 className="text-2xl font-semibold text-accent">Almost There!</h3>
+                         <p className="text-foreground/90">Before you go to the next surprise, watch this short clip...</p>
+
+                         {/* YouTube Embed Placeholder */}
+                          <div className="my-4 rounded-lg overflow-hidden shadow-lg border border-secondary/30">
+                             {/* Replace 'YOUTUBE_VIDEO_ID_HERE' with the actual ID */}
+                             <YoutubeEmbed embedId={levelConfig.levelOne.videoId} />
+                          </div>
+
+
+                         <p className="text-foreground/90 mt-4">...and then, tell me something sweet! Click the button and say <strong className="text-interactive-highlight">"I love you"</strong>.</p>
+
+                         {/* Voice Trigger Button */}
+                          <Button
+                             onClick={handleVoiceTrigger}
+                             variant="default"
+                             size="lg"
+                             className={`bg-accent hover:bg-accent/90 text-accent-foreground ${isListening ? 'animate-pulse' : ''}`}
+                           >
+                             <Mic className="mr-2 h-5 w-5" />
+                             {isListening ? 'Listening...' : 'Say "I love you"'}
+                          </Button>
+
+                         {/* Optional: Display transcript or status */}
+                         {/* {transcript && <p className="text-sm text-muted-foreground mt-2">Heard: "{transcript}"</p>} */}
+                     </div>
+                  )}
+
+              </CardContent>
             </Card>
-        </ScrollArea>
+          </ScrollArea>
+        </div>
       </div>
   );
 };

@@ -1,3 +1,4 @@
+
 {
   "compilerOptions": {
     "target": "ES2017",
@@ -20,8 +21,11 @@
     ],
     "paths": {
       "@/*": ["./src/*"]
-    }
+    },
+    // Add types for Web Speech API
+    "types": ["node", "react", "@types/dom-speech-recognition"]
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
   "exclude": ["node_modules"]
 }
+

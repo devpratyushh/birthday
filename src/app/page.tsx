@@ -7,7 +7,10 @@ import { VerticalTimeline } from '@/components/vertical-timeline'; // Changed im
 import BirthdayLetter from '@/components/birthday-letter';
 import BackgroundAnimation from '@/components/background-animation';
 import { timelineEvents } from '@/data/timeline-events';
+import { levelConfig } from '@/data/level-config'; // Import level configuration
 import { PartyPopper } from 'lucide-react'; // For balloons
+import LevelTwo from '@/components/level-two';
+import LevelThree from '@/components/level-three';
 
 // Target date: April 30th, 2025, 00:00:00 IST
 const TARGET_DATE = new Date('2025-04-30T00:00:00+05:30').getTime();
@@ -15,27 +18,64 @@ const TARGET_DATE = new Date('2025-04-30T00:00:00+05:30').getTime();
 export default function Home() {
   const [timeLeft, setTimeLeft] = useState<number | null>(null);
   const [isClient, setIsClient] = useState(false);
+  const [currentLevel, setCurrentLevel] = useState(1); // 1: Letter, 2: Proposal Vid, 3: Image/Meet Link
    // Check initial state based on current time vs target time
-   const [showLetter, setShowLetter] = useState(() => {
+   const [showLetterInitially, setShowLetterInitially] = useState(() => {
       if (typeof window !== 'undefined') { // Ensure this runs only on the client
           const now = new Date().getTime();
+          // FOR TESTING: Set to false to always show countdown first
+          // return false;
           return TARGET_DATE - now <= 0;
       }
       return false; // Default to false on server or before hydration
    });
   const [headingText, setHeadingText] = useState('Anandita');
   const [headingState, setHeadingState] = useState<'initial' | 'strike' | 'final'>('initial');
+  const [audioElement, setAudioElement] = useState<HTMLAudioElement | null>(null);
+
+  // Function to advance to the next level
+  const goToNextLevel = () => {
+    setCurrentLevel((prevLevel) => {
+      if (prevLevel < 3) { // Max 3 levels for now
+        return prevLevel + 1;
+      }
+      return prevLevel; // Stay on the last level
+    });
+  };
+
 
   useEffect(() => {
     setIsClient(true); // Indicate client-side rendering is complete
+
+     // Create Audio element on client
+    const audio = new Audio('/about-you.mp3');
+    audio.loop = true;
+    setAudioElement(audio);
+
+    // Start playing music after a short delay or user interaction
+    const playMusic = () => {
+      audio?.play().catch(error => console.error("Audio play failed:", error));
+      // Remove the event listener after the first interaction
+      document.removeEventListener('click', playMusic);
+      document.removeEventListener('scroll', playMusic);
+    };
+
+     // Add event listeners for user interaction to start music
+     document.addEventListener('click', playMusic, { once: true });
+     document.addEventListener('scroll', playMusic, { once: true });
+
 
     // Calculate initial time left on mount *after* hydration
     const calculateInitialTimeLeft = () => {
         const now = new Date().getTime();
         const difference = TARGET_DATE - now;
         if (difference <= 0) {
-            setShowLetter(true);
+            // setShowLetterInitially(true); // This state is already set initially
             setTimeLeft(0);
+             // If birthday has passed, immediately go to level 1 (letter) if not already there
+            if(currentLevel === 1 && !showLetterInitially){
+                // this condition seems redundant now with showLetterInitially state, but keep for safety
+            }
         } else {
             setTimeLeft(difference);
         }
@@ -58,36 +98,49 @@ export default function Home() {
       const difference = TARGET_DATE - now;
 
       if (difference <= 0) {
-        if (!showLetter) {
-          setShowLetter(true); // Set showLetter to true if countdown finishes
+        // If time is up and we haven't manually shown the letter yet
+        if (!showLetterInitially && currentLevel === 1) {
+           // No need to set state here, the conditional rendering below handles it
         }
         setTimeLeft(0); // Keep time left at 0
         return difference; // Return negative diff to stop interval
       } else {
         // If for some reason the date rolled back, hide letter (unlikely)
-         if (showLetter) {
-            setShowLetter(false);
+         if (showLetterInitially && currentLevel === 1) {
+            // No need to set state here
          }
         setTimeLeft(difference);
         return difference; // Return positive diff to continue interval
       }
     };
 
-    // Set up the interval timer
-    const timer = setInterval(() => {
-       const diff = calculateTimeLeft();
-        if (diff <= 0) {
-           clearInterval(timer); // Stop timer when countdown finishes
-        }
-    }, 1000);
+    // Set up the interval timer only if time is left initially
+    let timer: NodeJS.Timeout | null = null;
+    if (timeLeft === null || timeLeft > 0) {
+       timer = setInterval(() => {
+         const diff = calculateTimeLeft();
+          if (diff <= 0) {
+             if (timer) clearInterval(timer); // Stop timer when countdown finishes
+          }
+      }, 1000);
+    }
 
 
-    // Cleanup function for timers
+    // Cleanup function for timers and audio
     return () => {
-      clearInterval(timer);
+      if (timer) clearInterval(timer);
       clearTimeout(headingTimer);
+      document.removeEventListener('click', playMusic);
+      document.removeEventListener('scroll', playMusic);
+      audio?.pause(); // Pause audio on unmount
+      setAudioElement(null); // Clean up audio element state
     };
-  }, [showLetter]); // Re-run effect if showLetter changes (though mainly controlled internally now)
+  // }, [showLetterInitially, currentLevel]); // Dependency array updated
+  }, []); // Run only once on mount
+
+  // Derived state: should the main content (letter/levels) be shown?
+  const showMainContent = showLetterInitially || (timeLeft !== null && timeLeft <= 0);
+
 
   // Render basic loading state or null on server/before hydration
   if (!isClient) {
@@ -108,8 +161,13 @@ export default function Home() {
 
       <BackgroundAnimation />
       <div className="z-10 w-full max-w-5xl text-center flex flex-col items-center"> {/* Center content */}
-        {showLetter ? (
-          <BirthdayLetter />
+        {showMainContent ? (
+            <>
+             {/* Render component based on currentLevel */}
+             {currentLevel === 1 && <BirthdayLetter onLevelComplete={goToNextLevel} />}
+             {currentLevel === 2 && <LevelTwo videoId={levelConfig.levelTwo.videoId} onLevelComplete={goToNextLevel} />}
+             {currentLevel === 3 && <LevelThree imageUrl={levelConfig.levelThree.imageUrl} meetLink={levelConfig.levelThree.meetLink} />}
+            </>
         ) : (
           <>
             {/* Countdown Section */}
@@ -126,7 +184,7 @@ export default function Home() {
                  's Birthday Surprise!
                </h1>
                <p className="text-lg md:text-xl text-foreground mb-8 animate-fade-in" style={{ animationDelay: '0.2s' }}>
-                 Happy Birthdayy my love!! 🎉
+                 Countdown till I see my love... 🎉
                </p>
                <div className="relative w-full flex justify-center mt-4"> {/* Container for countdown and balloons */}
                  {/* Balloons - Positioned around the countdown */}
@@ -160,7 +218,7 @@ export default function Home() {
         )}
       </div>
        {/* Optional Footer - Adjusted margin */}
-       {!showLetter && (
+       {!showMainContent && (
          <footer className="z-10 mt-20 md:mt-28 text-center text-muted-foreground text-sm animate-fade-in" style={{ animationDelay: '0.6s' }}>
            Made with love for my love ❤️
          </footer>
