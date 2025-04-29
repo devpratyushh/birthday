@@ -20,7 +20,20 @@ const YoutubeEmbed: React.FC<YoutubeEmbedProps> = ({ embedId, onEnd }) => {
   useEffect(() => {
     // Function to create player
     const createPlayer = () => {
-      playerRef.current = new window.YT.Player(`youtube-player-${embedId}`, {
+       // Ensure the target div exists before creating the player
+       const playerDiv = document.getElementById(`youtube-player-${embedId}`);
+       if (!playerDiv) {
+            console.error(`Player div 'youtube-player-${embedId}' not found.`);
+            return; // Exit if target div doesn't exist
+        }
+        // Check if player is already loaded for this ID
+        if (playerDiv.dataset.loaded === 'true') {
+            console.log(`Player ${embedId} already loaded.`);
+            return;
+        }
+
+        console.log(`Creating player for ${embedId}`);
+      playerRef.current = new window.YT.Player(playerDiv, { // Pass the div element directly
         height: '100%',
         width: '100%',
         videoId: embedId,
@@ -36,27 +49,44 @@ const YoutubeEmbed: React.FC<YoutubeEmbedProps> = ({ embedId, onEnd }) => {
           'onStateChange': onPlayerStateChange
         }
       });
+      playerDiv.dataset.loaded = 'true'; // Mark as loaded
     };
 
     // Load the IFrame Player API code asynchronously.
-    if (!window.YT) {
-      const tag = document.createElement('script');
-      tag.src = "https://www.youtube.com/iframe_api";
-      document.body.appendChild(tag);
+    if (!window.YT || !window.YT.Player) { // Check if YT.Player is also available
+      // Avoid adding multiple script tags if API is loading but not ready
+      if (!document.querySelector('script[src="https://www.youtube.com/iframe_api"]')) {
+          console.log("Loading YouTube API...");
+          const tag = document.createElement('script');
+          tag.src = "https://www.youtube.com/iframe_api";
+          document.body.appendChild(tag);
+      } else {
+           console.log("YouTube API script already exists, waiting for it to load...");
+      }
 
-      // This function will be called when the API is ready
-      window.onYouTubeIframeAPIReady = () => {
-        console.log("YouTube API Ready");
-        createPlayer();
-      };
+
+      // Define the global callback function if it doesn't exist
+       if (!window.onYouTubeIframeAPIReady) {
+           window.onYouTubeIframeAPIReady = () => {
+             console.log("YouTube API Ready");
+             // Attempt to create player again now that API should be ready
+             createPlayer();
+           };
+       } else {
+           // If the callback exists but API wasn't ready before, it might mean
+           // another component initialized it. We can try creating player directly.
+           // Or rely on the existing callback to eventually call createPlayer.
+           console.log("onYouTubeIframeAPIReady exists, attempting player creation...");
+           if (window.YT && window.YT.Player) { // Double check API readiness
+               createPlayer();
+           }
+       }
+
+
     } else {
       // If API is already loaded, create player directly
-      // Check if player already exists for this embedId to avoid duplicates
-       if (!document.getElementById(`youtube-player-${embedId}`)?.dataset.loaded) {
-          createPlayer();
-          const playerDiv = document.getElementById(`youtube-player-${embedId}`);
-          if(playerDiv) playerDiv.dataset.loaded = 'true';
-       }
+      console.log("YouTube API already loaded, creating player...");
+      createPlayer();
     }
 
     // Cleanup function
@@ -71,14 +101,12 @@ const YoutubeEmbed: React.FC<YoutubeEmbedProps> = ({ embedId, onEnd }) => {
            }
             playerRef.current = null;
          }
-         // Clean up the global function if this is the last player unmounting
-         // This logic might need refinement if multiple players are used simultaneously
-         // const players = document.querySelectorAll('[id^="youtube-player-"]');
-         // if (players.length === 0) {
-         //    window.onYouTubeIframeAPIReady = undefined;
-         // }
+         const playerDiv = document.getElementById(`youtube-player-${embedId}`);
+          if(playerDiv) delete playerDiv.dataset.loaded; // Clean up loaded status
+
+         // Consider more robust cleanup for the global callback if multiple players are used
     };
-  }, [embedId]); // Re-run effect if embedId changes
+  }, [embedId, onEnd]); // Add onEnd to dependency array
 
 
   function onPlayerReady(event: any) {
@@ -103,3 +131,4 @@ const YoutubeEmbed: React.FC<YoutubeEmbedProps> = ({ embedId, onEnd }) => {
 };
 
 export default YoutubeEmbed;
+

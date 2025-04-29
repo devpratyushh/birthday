@@ -37,8 +37,10 @@ export default function Home() {
   const goToNextLevel = () => {
     setCurrentLevel((prevLevel) => {
       if (prevLevel < 3) { // Max 3 levels for now
+        console.log(`Advancing from Level ${prevLevel} to Level ${prevLevel + 1}`); // Add log
         return prevLevel + 1;
       }
+      console.log(`Already at max level (${prevLevel})`); // Add log
       return prevLevel; // Stay on the last level
     });
   };
@@ -58,11 +60,13 @@ export default function Home() {
       // Remove the event listener after the first interaction
       document.removeEventListener('click', playMusic);
       document.removeEventListener('scroll', playMusic);
+      document.removeEventListener('keypress', playMusic); // Also listen for keypress
     };
 
      // Add event listeners for user interaction to start music
      document.addEventListener('click', playMusic, { once: true });
      document.addEventListener('scroll', playMusic, { once: true });
+     document.addEventListener('keypress', playMusic, { once: true });
 
 
     // Calculate initial time left on mount *after* hydration
@@ -70,12 +74,9 @@ export default function Home() {
         const now = new Date().getTime();
         const difference = TARGET_DATE - now;
         if (difference <= 0) {
-            // setShowLetterInitially(true); // This state is already set initially
             setTimeLeft(0);
-             // If birthday has passed, immediately go to level 1 (letter) if not already there
-            if(currentLevel === 1 && !showLetterInitially){
-                // this condition seems redundant now with showLetterInitially state, but keep for safety
-            }
+             // If birthday has passed, immediately show letter (state handles this now)
+             // setShowLetterInitially is set at initialization based on time
         } else {
             setTimeLeft(difference);
         }
@@ -98,17 +99,9 @@ export default function Home() {
       const difference = TARGET_DATE - now;
 
       if (difference <= 0) {
-        // If time is up and we haven't manually shown the letter yet
-        if (!showLetterInitially && currentLevel === 1) {
-           // No need to set state here, the conditional rendering below handles it
-        }
         setTimeLeft(0); // Keep time left at 0
-        return difference; // Return negative diff to stop interval
+        return 0; // Return 0 or negative diff to stop interval
       } else {
-        // If for some reason the date rolled back, hide letter (unlikely)
-         if (showLetterInitially && currentLevel === 1) {
-            // No need to set state here
-         }
         setTimeLeft(difference);
         return difference; // Return positive diff to continue interval
       }
@@ -116,7 +109,9 @@ export default function Home() {
 
     // Set up the interval timer only if time is left initially
     let timer: NodeJS.Timeout | null = null;
-    if (timeLeft === null || timeLeft > 0) {
+    // Calculate first, then check if timer needs to start
+    const initialTime = calculateTimeLeft();
+    if (initialTime > 0) {
        timer = setInterval(() => {
          const diff = calculateTimeLeft();
           if (diff <= 0) {
@@ -132,6 +127,7 @@ export default function Home() {
       clearTimeout(headingTimer);
       document.removeEventListener('click', playMusic);
       document.removeEventListener('scroll', playMusic);
+      document.removeEventListener('keypress', playMusic);
       audio?.pause(); // Pause audio on unmount
       setAudioElement(null); // Clean up audio element state
     };
@@ -149,7 +145,7 @@ export default function Home() {
         <BackgroundAnimation />
         <div className="z-10 w-full max-w-4xl text-center">
           {/* Simple loading state */}
-          <div className="text-xl text-muted-foreground">Loading my love's Surprise...</div>
+          <div className="text-xl text-muted-foreground">Loading Surprise...</div>
         </div>
       </main>
     );
@@ -157,7 +153,7 @@ export default function Home() {
 
 
   return (
-    <main className="flex min-h-screen flex-col items-center relative overflow-hidden bg-background p-4 md:p-8 pt-16 md:pt-24">
+    <main className="flex min-h-screen flex-col items-center relative overflow-hidden bg-background p-4 md:p-8 pt-16 md:pt-24"> {/* Added padding-top */}
 
       <BackgroundAnimation />
       <div className="z-10 w-full max-w-5xl text-center flex flex-col items-center"> {/* Center content */}
@@ -184,7 +180,7 @@ export default function Home() {
                  's Birthday Surprise!
                </h1>
                <p className="text-lg md:text-xl text-foreground mb-8 animate-fade-in" style={{ animationDelay: '0.2s' }}>
-                 Countdown till I see my love... 🎉
+                 Happy Birthdayy 🎉
                </p>
                <div className="relative w-full flex justify-center mt-4"> {/* Container for countdown and balloons */}
                  {/* Balloons - Positioned around the countdown */}
@@ -199,7 +195,7 @@ export default function Home() {
                    <Countdown targetTimestamp={TARGET_DATE} />
                  ) : timeLeft === 0 ? (
                     // Handle the case where countdown just finished but letter hasn't rendered yet (optional)
-                    <div className="text-xl text-foreground py-10">Almost time!</div>
+                    <div className="text-xl text-foreground py-10">It's time! ✨</div>
                  ) : (
                      // Handle initial loading/calculation state
                    <div className="text-xl text-muted-foreground py-10">Calculating time...</div> // Added padding
@@ -226,3 +222,4 @@ export default function Home() {
     </main>
   );
 }
+

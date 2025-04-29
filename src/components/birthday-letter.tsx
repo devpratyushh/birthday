@@ -84,18 +84,18 @@ const BirthdayLetter: React.FC<BirthdayLetterProps> = ({ onLevelComplete }) => {
 
   // Setup Speech Recognition
    useEffect(() => {
-    if (!('webkitSpeechRecognition' in window)) {
+    // Check if SpeechRecognition is available (using webkit prefix for broader compatibility)
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SpeechRecognition) {
        console.error("Speech recognition not supported in this browser.");
-       // Optionally inform the user
-        // toast({
-        //    variant: "destructive",
-        //    title: "Browser Not Supported",
-        //    description: "Speech recognition is needed for the next step but isn't available here.",
-        //  });
+       toast({
+           variant: "destructive",
+           title: "Browser Not Supported",
+           description: "Oops! Speech recognition is needed for the next step, but it's not available in this browser. Please try Chrome or Edge.",
+         });
        return;
      }
 
-     const SpeechRecognition = window.webkitSpeechRecognition;
      recognitionRef.current = new SpeechRecognition();
      const recognition = recognitionRef.current;
 
@@ -113,15 +113,18 @@ const BirthdayLetter: React.FC<BirthdayLetterProps> = ({ onLevelComplete }) => {
           // Check if the command is "i love you"
            if (command.includes('i love you')) {
                 toast({
-                   title: "Success!",
-                   description: "💖 Level Unlocked! 💖",
+                   title: "Aww, I love you too! 🥰",
+                   description: "💖 Level 2 Unlocked! 💖",
                    className: "bg-green-100 border-green-400 text-green-800", // Custom success style
                  });
-               onLevelComplete(); // Go to next level
+               // Add a small delay before moving to the next level for the toast to be visible
+               setTimeout(() => {
+                   onLevelComplete(); // Go to next level
+               }, 1500); // 1.5 second delay
            } else {
                 toast({
                    variant: "destructive",
-                   title: "Try Again",
+                   title: "Try Again?",
                    description: `Hmm, I heard "${command}". Please say "I love you" clearly. 😊`,
                  });
            }
@@ -130,13 +133,17 @@ const BirthdayLetter: React.FC<BirthdayLetterProps> = ({ onLevelComplete }) => {
 
      recognition.onerror = (event) => {
         console.error('Speech recognition error:', event.error);
-        let errorMessage = "Speech recognition error.";
+        let errorMessage = "Speech recognition error occurred.";
         if (event.error === 'no-speech') {
-            errorMessage = "Didn't hear anything. Please try speaking.";
+            errorMessage = "Didn't hear anything. Please try speaking clearly near the microphone.";
         } else if (event.error === 'audio-capture') {
-            errorMessage = "Microphone problem. Ensure it's enabled and working.";
+            errorMessage = "Microphone problem. Ensure it's enabled, connected, and not muted.";
         } else if (event.error === 'not-allowed') {
-            errorMessage = "Permission denied. Please allow microphone access.";
+            errorMessage = "Permission denied. Please allow microphone access in your browser settings and refresh.";
+        } else if (event.error === 'network') {
+            errorMessage = "Network error. Please check your connection.";
+        } else if (event.error === 'service-not-allowed') {
+             errorMessage = "Speech service is not allowed. Check browser/OS settings.";
         }
          toast({
             variant: "destructive",
@@ -147,16 +154,19 @@ const BirthdayLetter: React.FC<BirthdayLetterProps> = ({ onLevelComplete }) => {
      };
 
       recognition.onend = () => {
-          // Don't automatically stop listening state here if continuous is true
-          // For continuous=false, it's okay
-         if (!recognition.continuous) {
-            setIsListening(false);
-         }
+          // Ensure listening state is turned off when recognition ends
+         setIsListening(false);
       };
 
       // Cleanup function
      return () => {
-       recognition?.stop();
+       if (recognitionRef.current) {
+          recognitionRef.current.stop();
+          // Explicitly remove event listeners to prevent memory leaks
+          recognitionRef.current.onresult = null;
+          recognitionRef.current.onerror = null;
+          recognitionRef.current.onend = null;
+       }
        recognitionRef.current = null;
      };
    }, [onLevelComplete, toast]);
@@ -165,33 +175,53 @@ const BirthdayLetter: React.FC<BirthdayLetterProps> = ({ onLevelComplete }) => {
    // Function to handle the voice trigger button click
    const handleVoiceTrigger = async () => {
      if (!recognitionRef.current) {
-        toast({ variant: "destructive", title: "Error", description: "Speech recognition not initialized." });
+        toast({ variant: "destructive", title: "Error", description: "Speech recognition not initialized or not supported." });
         return;
      }
 
      if (isListening) {
        recognitionRef.current.stop();
-       setIsListening(false);
+       // State will be set to false by the 'onend' handler
      } else {
         // Request microphone permission
         try {
+            // Check permission status first (more robust)
+            const permissionStatus = await navigator.permissions.query({ name: 'microphone' as PermissionName });
+
+            if (permissionStatus.state === 'denied') {
+                 toast({
+                     variant: "destructive",
+                     title: "Microphone Access Denied",
+                     description: "Please allow microphone access in your browser settings and refresh the page.",
+                 });
+                 return;
+             }
+
+            // Try getting user media to prompt if needed
             const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-            // Permission granted, we can now start recognition
             stream.getTracks().forEach(track => track.stop()); // Stop the track immediately after permission check
 
+            // Start recognition
             recognitionRef.current.start();
             setIsListening(true);
             setTranscript(''); // Clear previous transcript
              toast({
                 title: "Listening...",
-                description: "Say 'I love you' clearly!",
+                description: "Say 'I love you' clearly into the mic! 🎤",
+                duration: 5000, // Show toast for 5 seconds
              });
-        } catch (err) {
-             console.error("Microphone access denied:", err);
+        } catch (err: any) {
+             console.error("Microphone access error:", err);
+             let errorDesc = "Could not access the microphone. Please ensure it's connected and allowed.";
+             if (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError') {
+                 errorDesc = "Microphone permission denied. Please allow access in your browser settings and refresh.";
+             } else if (err.name === 'NotFoundError' || err.name === 'DevicesNotFoundError') {
+                 errorDesc = "No microphone found. Please connect a microphone.";
+             }
              toast({
                 variant: "destructive",
-                title: "Microphone Access Denied",
-                description: "Please allow microphone access in your browser settings to proceed.",
+                title: "Microphone Error",
+                description: errorDesc,
              });
              setIsListening(false);
         }
@@ -239,15 +269,15 @@ const BirthdayLetter: React.FC<BirthdayLetterProps> = ({ onLevelComplete }) => {
 
         {/* Scroll Area with Rounded Corners */}
         <div ref={scrollAreaRef} className="h-[80vh] w-full mx-auto rounded-xl overflow-hidden border border-primary/20 shadow-inner bg-card/95 backdrop-blur-md relative z-10">
-          <ScrollArea ref={viewportRef} className="h-full w-full rounded-xl"> {/* Apply rounded-xl here too */}
-            <Card className="w-full border-none bg-transparent rounded-xl"> {/* Make card transparent */}
+          <ScrollArea viewportRef={viewportRef} className="h-full w-full rounded-xl"> {/* Pass viewportRef */}
+            <Card className="w-full border-none bg-transparent rounded-xl min-h-full flex flex-col"> {/* Make card transparent and ensure it fills height */}
               {/* Sticky Header */}
               <CardHeader className="sticky top-0 z-20 bg-card/90 backdrop-blur-lg text-center border-b border-primary/15 pb-4 pt-6 rounded-t-xl"> {/* Rounded top */}
                   <CardTitle className="text-3xl md:text-4xl font-bold text-primary-highlight drop-shadow-lg"> {/* Use highlight color, bigger shadow */}
-                  A Special Message For You! 💌
+                  Level 1: A Special Message For You! 💌
                   </CardTitle>
               </CardHeader>
-              <CardContent className="text-base md:text-lg text-card-foreground leading-relaxed space-y-5 p-6 md:p-8 font-serif">
+              <CardContent className="flex-grow text-base md:text-lg text-card-foreground leading-relaxed space-y-5 p-6 md:p-8 font-serif"> {/* Add flex-grow */}
                   {letterContent.map((paragraph, index) => (
                       <p key={index}>{makeInteractive(paragraph)}</p>
                   ))}
@@ -261,17 +291,17 @@ const BirthdayLetter: React.FC<BirthdayLetterProps> = ({ onLevelComplete }) => {
                  {/* Prompt Section - Conditionally Rendered */}
                  {showPrompt && (
                      <div className="mt-12 p-6 border-t border-dashed border-accent/50 text-center space-y-4 animate-fade-in">
-                         <h3 className="text-2xl font-semibold text-accent">Almost There!</h3>
-                         <p className="text-foreground/90">Before you go to the next surprise, watch this short clip...</p>
+                         <h3 className="text-2xl font-semibold text-accent">Next Step!</h3>
+                         <p className="text-foreground/90">Before you unlock the next surprise, watch this short clip...</p>
 
                          {/* YouTube Embed Placeholder */}
-                          <div className="my-4 rounded-lg overflow-hidden shadow-lg border border-secondary/30">
-                             {/* Replace 'YOUTUBE_VIDEO_ID_HERE' with the actual ID */}
+                          <div className="my-4 rounded-lg overflow-hidden shadow-lg border border-secondary/30 max-w-md mx-auto aspect-video">
+                             {/* Use the video ID from levelConfig */}
                              <YoutubeEmbed embedId={levelConfig.levelOne.videoId} />
                           </div>
 
 
-                         <p className="text-foreground/90 mt-4">...and then, tell me something sweet! Click the button and say <strong className="text-interactive-highlight">"I love you"</strong>.</p>
+                         <p className="text-foreground/90 mt-4">...and then, tell me something sweet! Click the button below and clearly say <strong className="text-interactive-highlight">"I love you"</strong> into your microphone.</p>
 
                          {/* Voice Trigger Button */}
                           <Button
@@ -284,8 +314,15 @@ const BirthdayLetter: React.FC<BirthdayLetterProps> = ({ onLevelComplete }) => {
                              {isListening ? 'Listening...' : 'Say "I love you"'}
                           </Button>
 
-                         {/* Optional: Display transcript or status */}
-                         {/* {transcript && <p className="text-sm text-muted-foreground mt-2">Heard: "{transcript}"</p>} */}
+                         {/* Optional: Display transcript or status icon */}
+                         <div className="mt-2 min-h-[24px]"> {/* Reserve space */}
+                            {transcript && !isListening && (
+                                <p className="text-sm text-muted-foreground">
+                                    Heard: "{transcript}"
+                                    {transcript.includes('i love you') ? <CheckCircle className="inline ml-1 h-4 w-4 text-green-500"/> : <AlertCircle className="inline ml-1 h-4 w-4 text-red-500"/>}
+                                </p>
+                             )}
+                         </div>
                      </div>
                   )}
 
@@ -298,3 +335,4 @@ const BirthdayLetter: React.FC<BirthdayLetterProps> = ({ onLevelComplete }) => {
 };
 
 export default BirthdayLetter;
+
