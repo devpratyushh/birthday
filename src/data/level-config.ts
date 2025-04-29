@@ -14,13 +14,33 @@ export interface LevelConfig {
   };
 }
 
+// Helper function to extract video ID from URL
+const extractVideoId = (url: string): string => {
+    try {
+        const urlObj = new URL(url);
+        if (urlObj.hostname === 'youtu.be') {
+            // Handle short URLs like https://youtu.be/VIDEO_ID
+            return urlObj.pathname.substring(1);
+        } else if (urlObj.hostname.includes('youtube.com')) {
+            // Handle standard URLs like https://www.youtube.com/watch?v=VIDEO_ID
+            const videoId = urlObj.searchParams.get('v');
+            return videoId || ''; // Return empty string if 'v' param is not found
+        }
+        return ''; // Return empty string for non-YouTube URLs
+    } catch (e) {
+        console.error("Invalid URL provided for video ID extraction:", url, e);
+        return ''; // Return empty string on error
+    }
+};
+
+
 // Replace placeholder values with actual IDs and URLs
 export const levelConfig: LevelConfig = {
   levelOne: {
-    videoId: 'YOUTUBE_PROMPT_VIDEO_ID_HERE', // TODO: Replace with actual YouTube video ID
+    videoId: extractVideoId('https://www.youtube.com/watch?v=K8bbr8FzlJI'), // Extracted ID for Level 1 prompt video
   },
   levelTwo: {
-    videoId: 'YOUTUBE_PROPOSAL_VIDEO_ID_HERE', // TODO: Replace with actual YouTube video ID
+    videoId: extractVideoId('https://www.youtube.com/watch?v=x5R0RWU1O1M'), // Extracted ID for Level 2 proposal video
   },
   levelThree: {
     imageUrl: '/placeholder-final-image.jpg', // TODO: Replace with actual image URL (can be relative or absolute)

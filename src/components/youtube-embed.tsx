@@ -6,6 +6,7 @@ declare global {
   interface Window {
     onYouTubeIframeAPIReady?: () => void;
     YT?: any; // Define YT namespace
+    YT_API_LOADED?: boolean; // Flag to track API loading state
   }
 }
 
@@ -16,77 +17,106 @@ interface YoutubeEmbedProps {
 
 const YoutubeEmbed: React.FC<YoutubeEmbedProps> = ({ embedId, onEnd }) => {
   const playerRef = useRef<any>(null); // Ref to store the player instance
+  const playerDivId = `youtube-player-${embedId}-${Math.random().toString(36).substring(7)}`; // Unique ID for the div
 
   useEffect(() => {
     // Function to create player
     const createPlayer = () => {
        // Ensure the target div exists before creating the player
-       const playerDiv = document.getElementById(`youtube-player-${embedId}`);
+       const playerDiv = document.getElementById(playerDivId);
        if (!playerDiv) {
-            console.error(`Player div 'youtube-player-${embedId}' not found.`);
+            console.error(`Player div '${playerDivId}' not found.`);
             return; // Exit if target div doesn't exist
         }
-        // Check if player is already loaded for this ID
-        if (playerDiv.dataset.loaded === 'true') {
-            console.log(`Player ${embedId} already loaded.`);
+        // Check if player is already created for this unique div
+        if (playerDiv.dataset.ytPlayerLoaded === 'true') {
+            console.log(`Player for div ${playerDivId} already loaded.`);
             return;
         }
 
-        console.log(`Creating player for ${embedId}`);
-      playerRef.current = new window.YT.Player(playerDiv, { // Pass the div element directly
-        height: '100%',
-        width: '100%',
-        videoId: embedId,
-        playerVars: {
-          // 'autoplay': 1, // Consider removing autoplay or making it conditional
-          'controls': 1,
-          'rel': 0, // Don't show related videos at the end
-          'showinfo': 0, // Hide video title and uploader
-          'modestbranding': 1, // Hide YouTube logo
-        },
-        events: {
-          'onReady': onPlayerReady,
-          'onStateChange': onPlayerStateChange
+        console.log(`Creating player for ${embedId} in div ${playerDivId}`);
+        try {
+            playerRef.current = new window.YT.Player(playerDivId, { // Use the unique ID
+                height: '100%',
+                width: '100%',
+                videoId: embedId,
+                playerVars: {
+                  // 'autoplay': 1, // Autoplay can be problematic, enable cautiously
+                  'controls': 1,
+                  'rel': 0, // Don't show related videos at the end
+                  'showinfo': 0, // Hide video title and uploader
+                  'modestbranding': 1, // Hide YouTube logo
+                  'playsinline': 1 // Important for iOS playback
+                },
+                events: {
+                  'onReady': onPlayerReady,
+                  'onStateChange': onPlayerStateChange,
+                  'onError': onPlayerError // Add error handling
+                }
+            });
+             playerDiv.dataset.ytPlayerLoaded = 'true'; // Mark this specific div as having a player
+        } catch (e) {
+             console.error(`Error creating YouTube player for ${embedId}:`, e);
         }
-      });
-      playerDiv.dataset.loaded = 'true'; // Mark as loaded
     };
 
-    // Load the IFrame Player API code asynchronously.
-    if (!window.YT || !window.YT.Player) { // Check if YT.Player is also available
-      // Avoid adding multiple script tags if API is loading but not ready
-      if (!document.querySelector('script[src="https://www.youtube.com/iframe_api"]')) {
-          console.log("Loading YouTube API...");
-          const tag = document.createElement('script');
-          tag.src = "https://www.youtube.com/iframe_api";
-          document.body.appendChild(tag);
-      } else {
-           console.log("YouTube API script already exists, waiting for it to load...");
-      }
+    // Callback when player is ready
+    const onPlayerReady = (event: any) => {
+        console.log(`Player ${embedId} (div: ${playerDivId}) ready.`);
+        // event.target.playVideo(); // Uncomment if you want autoplay on ready
+    };
+
+    // Callback for player state changes
+    const onPlayerStateChange = (event: any) => {
+        if (event.data === window.YT?.PlayerState?.ENDED) { // Check YT and PlayerState existence
+            console.log(`Video ${embedId} (div: ${playerDivId}) ended.`);
+            onEnd?.(); // Call the onEnd callback if provided
+        }
+    };
+
+     // Callback for player errors
+     const onPlayerError = (event: any) => {
+         console.error(`YouTube Player Error for ${embedId} (div: ${playerDivId}): Code ${event.data}`);
+         // You could display a message to the user here
+     };
 
 
-      // Define the global callback function if it doesn't exist
-       if (!window.onYouTubeIframeAPIReady) {
-           window.onYouTubeIframeAPIReady = () => {
-             console.log("YouTube API Ready");
-             // Attempt to create player again now that API should be ready
-             createPlayer();
-           };
-       } else {
-           // If the callback exists but API wasn't ready before, it might mean
-           // another component initialized it. We can try creating player directly.
-           // Or rely on the existing callback to eventually call createPlayer.
-           console.log("onYouTubeIframeAPIReady exists, attempting player creation...");
-           if (window.YT && window.YT.Player) { // Double check API readiness
-               createPlayer();
-           }
-       }
+    // --- API Loading and Player Initialization Logic ---
+    if (typeof window !== 'undefined') {
+        // If API is ready, create player
+        if (window.YT && window.YT.Player) {
+            createPlayer();
+        }
+        // If API is loading (script exists, callback defined, but YT object not ready)
+        else if (window.onYouTubeIframeAPIReady && !window.YT_API_LOADED) {
+             console.log("YouTube API is loading, waiting...");
+             // The existing callback will eventually trigger player creation.
+             // We might need to ensure our createPlayer is called by it.
+             // A more robust approach might involve a queue or event listener.
+              // Let's augment the existing callback (if safe) or wait.
+             const originalCallback = window.onYouTubeIframeAPIReady;
+             window.onYouTubeIframeAPIReady = () => {
+                originalCallback?.(); // Call original if it existed
+                if (!playerRef.current) { // Create player if not already created by another instance
+                     createPlayer();
+                }
+             };
 
+        }
+        // If API script needs to be loaded
+        else if (!document.querySelector('script[src="https://www.youtube.com/iframe_api"]')) {
+            console.log("Loading YouTube API script...");
+            const tag = document.createElement('script');
+            tag.src = "https://www.youtube.com/iframe_api";
+            document.body.appendChild(tag);
 
-    } else {
-      // If API is already loaded, create player directly
-      console.log("YouTube API already loaded, creating player...");
-      createPlayer();
+            // Define the global callback *before* the script loads
+            window.onYouTubeIframeAPIReady = () => {
+                console.log("YouTube API Ready (Initial Load)");
+                window.YT_API_LOADED = true; // Mark API as loaded
+                createPlayer(); // Create this instance's player
+            };
+        }
     }
 
     // Cleanup function
@@ -95,40 +125,35 @@ const YoutubeEmbed: React.FC<YoutubeEmbedProps> = ({ embedId, onEnd }) => {
         if (playerRef.current && typeof playerRef.current.destroy === 'function') {
            try {
                 playerRef.current.destroy();
-                console.log(`Player ${embedId} destroyed.`);
+                console.log(`Player ${embedId} (div: ${playerDivId}) destroyed.`);
            } catch (e) {
                 console.error("Error destroying YouTube player:", e);
            }
             playerRef.current = null;
          }
-         const playerDiv = document.getElementById(`youtube-player-${embedId}`);
-          if(playerDiv) delete playerDiv.dataset.loaded; // Clean up loaded status
-
-         // Consider more robust cleanup for the global callback if multiple players are used
+         // Clean up the loaded marker on the specific div
+         const playerDiv = document.getElementById(playerDivId);
+         if (playerDiv) {
+             delete playerDiv.dataset.ytPlayerLoaded;
+         }
+         // It's generally unsafe to remove the global callback or script tag
+         // as other components might rely on them.
     };
-  }, [embedId, onEnd]); // Add onEnd to dependency array
+  // Add playerDivId to dependencies to re-run if the ID changes (though it shouldn't normally)
+  }, [embedId, onEnd, playerDivId]);
 
-
-  function onPlayerReady(event: any) {
-    console.log(`Player ${embedId} ready.`);
-    // You could autoplay here if desired: event.target.playVideo();
-  }
-
-  function onPlayerStateChange(event: any) {
-    // YT.PlayerState.ENDED is 0
-    if (event.data === window.YT.PlayerState.ENDED) {
-      console.log(`Video ${embedId} ended.`);
-      onEnd?.(); // Call the onEnd callback if provided
-    }
-  }
 
   return (
-    <div className="relative w-full h-full overflow-hidden">
-        {/* The div where the player will be injected */}
-      <div id={`youtube-player-${embedId}`} className="absolute top-0 left-0 w-full h-full"></div>
+    <div className="relative w-full h-full overflow-hidden bg-black rounded-lg"> {/* Added bg-black for loading */}
+        {/* The div where the player will be injected - Use the unique ID */}
+      <div id={playerDivId} className="absolute top-0 left-0 w-full h-full">
+         {/* Optional: Add a loading indicator here */}
+         <div className="absolute inset-0 flex items-center justify-center text-muted-foreground">
+            Loading Video...
+         </div>
+      </div>
     </div>
   );
 };
 
 export default YoutubeEmbed;
-
