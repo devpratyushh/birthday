@@ -4,6 +4,7 @@
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { Heart, PartyPopper } from 'lucide-react'; // Import icons for decoration
 
 // Function to add interactive spans around specific words
 const makeInteractive = (text: string) => {
@@ -19,6 +20,7 @@ const makeInteractive = (text: string) => {
     // Check if the exact part (case-insensitive) is in the list
     const lowerPart = part.toLowerCase();
     if (interactiveWords.some(word => word.toLowerCase() === lowerPart)) {
+      // Apply the 'interactive-word' class for hover effects
       return <span key={index} className="interactive-word">{part}</span>;
     }
     return part;
@@ -39,26 +41,58 @@ const BirthdayLetter: React.FC = () => {
 
 
   return (
-    <ScrollArea className="h-[80vh] w-full max-w-3xl mx-auto"> {/* Added ScrollArea */}
-        <Card className="w-full mx-auto shadow-xl bg-card/95 backdrop-blur-md animate-fade-in border-primary/30 rounded-xl"> {/* Added more blur, shadow, border, rounded */}
-        <CardHeader className="text-center border-b border-primary/15 pb-4"> {/* Lighter border */}
-            <CardTitle className="text-3xl md:text-4xl font-bold text-primary-highlight drop-shadow-lg"> {/* Use highlight color, bigger shadow */}
-            A Special Message For You! 💌
-            </CardTitle>
-        </CardHeader>
-        <CardContent className="text-base md:text-lg text-card-foreground leading-relaxed space-y-5 p-6 md:p-8 font-serif"> {/* Changed font slightly */}
-            {letterContent.map((paragraph, index) => (
-                <p key={index}>{makeInteractive(paragraph)}</p>
-            ))}
+     <div className="relative w-full max-w-3xl mx-auto animate-letter-float-up"> {/* Relative container for positioning */}
+        {/* Floating Decorations */}
+        <Heart
+            className="absolute -top-10 -left-10 w-10 h-10 text-primary/60 animate-gentle-sway opacity-80"
+            style={{ animationDelay: '0.2s', animationDuration: '6s' }}
+            fill="currentColor"
+            strokeWidth={0}
+         />
+         <PartyPopper
+            className="absolute -top-12 -right-8 w-12 h-12 text-pink-400/70 transform -rotate-12 animate-balloon-float-1 opacity-90"
+             style={{ animationDelay: '0s', animationDuration: '8s' }}
+          />
+          <Heart
+            className="absolute -bottom-12 -right-12 w-14 h-14 text-accent/70 animate-slow-spin-fade opacity-70"
+            style={{ animationDelay: '0.5s', animationDuration: '18s' }}
+            fill="currentColor"
+            strokeWidth={0}
+          />
+           <PartyPopper
+            className="absolute -bottom-10 -left-14 w-10 h-10 text-purple-400/60 transform rotate-10 animate-balloon-float-3 opacity-85"
+            style={{ animationDelay: '0.3s', animationDuration: '9s' }}
+          />
+          {/* Smaller heart */}
+          <Heart
+            className="absolute top-1/3 -left-16 w-6 h-6 text-secondary/50 animate-twinkle opacity-60"
+            style={{ animationDelay: '0.8s', animationDuration: '7s' }}
+            fill="currentColor"
+            strokeWidth={0}
+          />
 
-            {/* Signature */}
-            <p className="text-right font-semibold pt-4 text-primary">
-              With all my love, <br />
-              Your <span className="interactive-word">Situaa</span>
-            </p>
-        </CardContent>
-        </Card>
-    </ScrollArea>
+
+        <ScrollArea className="h-[80vh] w-full mx-auto"> {/* Added ScrollArea */}
+            <Card className="w-full mx-auto shadow-xl bg-card/95 backdrop-blur-md border-primary/30 rounded-xl relative z-10"> {/* Added z-10 */}
+            <CardHeader className="text-center border-b border-primary/15 pb-4"> {/* Lighter border */}
+                <CardTitle className="text-3xl md:text-4xl font-bold text-primary-highlight drop-shadow-lg"> {/* Use highlight color, bigger shadow */}
+                A Special Message For You! 💌
+                </CardTitle>
+            </CardHeader>
+            <CardContent className="text-base md:text-lg text-card-foreground leading-relaxed space-y-5 p-6 md:p-8 font-serif"> {/* Changed font slightly */}
+                {letterContent.map((paragraph, index) => (
+                    <p key={index}>{makeInteractive(paragraph)}</p>
+                ))}
+
+                {/* Signature */}
+                <p className="text-right font-semibold pt-4 text-primary">
+                  With all my love, <br />
+                  Your <span className="interactive-word">Situaa</span>
+                </p>
+            </CardContent>
+            </Card>
+        </ScrollArea>
+      </div>
   );
 };
 
