@@ -12,24 +12,34 @@ interface AnimatedIcon {
 }
 
 // Prioritize hearts VERY heavily, make them larger and more numerous
-// Increased hearts to ~90 out of 100
+// Adjusting distribution slightly for 200 icons (still heart-heavy)
 const ICON_PRIORITY = [
-    Heart, Heart, Heart, Heart, Heart, Heart, Heart, Heart, Heart, Heart, // 10 Hearts
-    Heart, Heart, Heart, Heart, Heart, Heart, Heart, Heart, Heart, Heart, // 20 Hearts
-    Heart, Heart, Heart, Heart, Heart, Heart, Heart, Heart, Heart, Heart, // 30 Hearts
-    Heart, Heart, Heart, Heart, Heart, Heart, Heart, Heart, Heart, Heart, // 40 Hearts
-    Heart, Heart, Heart, Heart, Heart, Heart, Heart, Heart, Heart, Heart, // 50 Hearts
-    Heart, Heart, Heart, Heart, Heart, Heart, Heart, Heart, Heart, Heart, // 60 Hearts
-    Heart, Heart, Heart, Heart, Heart, Heart, Heart, Heart, Heart, Heart, // 70 Hearts
-    Heart, Heart, Heart, Heart, Heart, Heart, Heart, Heart, Heart, Heart, // 80 Hearts
-    Heart, Heart, Heart, Heart, Heart, Heart, Heart, Heart, Heart, Heart, // 90 Hearts!
-    Star, Flower2, Star, Flower2, Star, Flower2, Star, Flower2, Star, Flower2 // 10 Others
+    Heart, Heart, Heart, Heart, Heart, Heart, Heart, Heart, Heart, Heart, // 10
+    Heart, Heart, Heart, Heart, Heart, Heart, Heart, Heart, Heart, Heart, // 20
+    Heart, Heart, Heart, Heart, Heart, Heart, Heart, Heart, Heart, Heart, // 30
+    Heart, Heart, Heart, Heart, Heart, Heart, Heart, Heart, Heart, Heart, // 40
+    Heart, Heart, Heart, Heart, Heart, Heart, Heart, Heart, Heart, Heart, // 50
+    Heart, Heart, Heart, Heart, Heart, Heart, Heart, Heart, Heart, Heart, // 60
+    Heart, Heart, Heart, Heart, Heart, Heart, Heart, Heart, Heart, Heart, // 70
+    Heart, Heart, Heart, Heart, Heart, Heart, Heart, Heart, Heart, Heart, // 80
+    Heart, Heart, Heart, Heart, Heart, Heart, Heart, Heart, Heart, Heart, // 90
+    Heart, Heart, Heart, Heart, Heart, Heart, Heart, Heart, Heart, Heart, // 100
+    Heart, Heart, Heart, Heart, Heart, Heart, Heart, Heart, Heart, Heart, // 110
+    Heart, Heart, Heart, Heart, Heart, Heart, Heart, Heart, Heart, Heart, // 120
+    Heart, Heart, Heart, Heart, Heart, Heart, Heart, Heart, Heart, Heart, // 130
+    Heart, Heart, Heart, Heart, Heart, Heart, Heart, Heart, Heart, Heart, // 140
+    Heart, Heart, Heart, Heart, Heart, Heart, Heart, Heart, Heart, Heart, // 150
+    Heart, Heart, Heart, Heart, Heart, Heart, Heart, Heart, Heart, Heart, // 160 - approx 80% hearts
+    Star, Flower2, Star, Flower2, Star, Flower2, Star, Flower2, Star, Flower2, // 170
+    Star, Flower2, Star, Flower2, Star, Flower2, Star, Flower2, Star, Flower2, // 180
+    Star, Flower2, Star, Flower2, Star, Flower2, Star, Flower2, Star, Flower2, // 190
+    Star, Flower2, Star, Flower2, Star, Flower2, Star, Flower2, Star, Flower2  // 200 - approx 20% others
 ];
 
 const BackgroundAnimation: React.FC = () => {
   const [icons, setIcons] = useState<AnimatedIcon[]>([]);
   const [isClient, setIsClient] = useState(false);
-  const numIcons = 100; // Increased total number for density, matching ICON_PRIORITY length
+  const numIcons = 200; // Increased total number for density
 
   useEffect(() => {
     setIsClient(true);
@@ -40,7 +50,7 @@ const BackgroundAnimation: React.FC = () => {
 
     const generateIcons = () => {
       const newIcons: AnimatedIcon[] = [];
-      const iconTypesCount = ICON_PRIORITY.length;
+      const iconTypesCount = ICON_PRIORITY.length; // Should be 200 now
       for (let i = 0; i < numIcons; i++) {
         const IconComponent = ICON_PRIORITY[i % iconTypesCount];
 

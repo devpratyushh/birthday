@@ -81,24 +81,11 @@ export default function Home() {
         }
     }, 1000);
 
-    // Attempt to play audio after a user interaction (though browsers often block autoplay now)
-    // A better approach might be a dedicated play button, but following initial request for autoplay.
-    const audioEl = document.getElementById('bg-music') as HTMLAudioElement | null;
-    if (audioEl) {
-       audioEl.play().catch(error => {
-         console.log("Autoplay prevented:", error);
-         // Optionally, show a UI element to let the user start the music manually
-       });
-    }
 
-    // Cleanup function for timers and audio
+    // Cleanup function for timers
     return () => {
       clearInterval(timer);
       clearTimeout(headingTimer);
-       if (audioEl) {
-          audioEl.pause();
-          audioEl.currentTime = 0;
-       }
     };
   }, [showLetter]); // Re-run effect if showLetter changes (though mainly controlled internally now)
 
@@ -118,12 +105,6 @@ export default function Home() {
 
   return (
     <main className="flex min-h-screen flex-col items-center relative overflow-hidden bg-background p-4 md:p-8 pt-16 md:pt-24">
-       {/* Background Music - Hidden */}
-      {/* IMPORTANT: Replace 'YOUR_SONG_URL_HERE' with a publicly accessible URL to the song file */}
-      <audio id="bg-music" loop autoPlay>
-         <source src="YOUR_SONG_URL_HERE" type="audio/mpeg" /> {/* Replace with actual URL and correct type */}
-         Your browser does not support the audio element.
-      </audio>
 
       <BackgroundAnimation />
       <div className="z-10 w-full max-w-5xl text-center flex flex-col items-center"> {/* Center content */}

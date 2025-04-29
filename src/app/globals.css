@@ -35,6 +35,10 @@
     --input: 240 30% 96%; /* Muted lavender input */
     --ring: 350 100% 88%; /* Soft pink for focus rings */
 
+    /* Interactive Word Highlight Color - Hot Pink equivalent */
+    --interactive-highlight: 330 100% 71%; /* HSL for #FF69B4 */
+
+
     --chart-1: 350 75% 75%;
     --chart-2: 240 55% 85%;
     --chart-3: 5 75% 85%;
@@ -70,7 +74,6 @@
     --primary-foreground: 350 20% 10%;
     --primary-highlight: 350 100% 80%; /* Even brighter highlight for dark */
 
-
     --secondary: 240 20% 25%; /* Darker lavender */
     --secondary-foreground: 240 30% 85%; /* Lighter secondary text */
 
@@ -86,6 +89,10 @@
     --border: 350 20% 30%; /* Muted pink border */
     --input: 240 10% 20%;
     --ring: 350 90% 70%;
+
+     /* Interactive Word Highlight Color - Dark Mode Adjustment */
+     --interactive-highlight: 330 95% 75%; /* Slightly brighter hot pink for dark mode */
+
 
     --chart-1: 350 70% 65%;
     --chart-2: 240 50% 70%;
@@ -199,10 +206,10 @@
 
     /* Interactive Letter Styles */
     .interactive-word {
-        /* Use a stronger pink/coral, closer to accent or primary-highlight */
+       /* Use the new --interactive-highlight variable for hot pink */
        @apply relative inline-block cursor-pointer transition-all duration-300 ease-out font-semibold;
-       color: hsl(var(--primary-highlight) / 0.9); /* Stronger pink */
-       text-shadow: 1px 1px 4px hsla(var(--primary), 0.3); /* Slightly more pronounced shadow */
+       color: hsl(var(--interactive-highlight)); /* Hot Pink */
+       text-shadow: 1px 1px 4px hsla(var(--interactive-highlight), 0.3); /* Use highlight color for shadow */
     }
 
     .interactive-word:hover {
@@ -213,21 +220,21 @@
 
     .interactive-word::after {
       content: '💖'; /* Heart emoji */
-      position: absolute;
+      position: absolute; /* Position relative to the word span */
       font-size: 0.8em; /* Slightly larger emoji */
       opacity: 0;
       transition: opacity 0.3s ease-out, transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); /* Add bounce */
       transform: translateY(8px) scale(0.5); /* Start slightly lower */
       pointer-events: none; /* Prevent emoji from blocking hover */
-       /* Position randomly around the word */
-      top: -70%; /* Move slightly higher */
+       /* Position above the center of the word */
+      top: -1.2em; /* Adjust this value to position the heart above */
       left: 50%;
-       transform: translate(-50%, 8px) scale(0.5);
+      transform: translate(-50%, 8px) scale(0.5); /* Center horizontally, start lower */
     }
 
      .interactive-word:hover::after {
        opacity: 1;
-       transform: translate(-50%, -8px) scale(1.1); /* Move up more and scale bigger with bounce */
+       transform: translate(-50%, -0.5em) scale(1.1); /* Center horizontally, move up more and scale bigger with bounce */
      }
 
 }
@@ -277,6 +284,7 @@
     /* Adjusted opacity/duration for better visibility over gradient */
     animation: float 12s ease-in-out infinite alternate; /* Even Slower float (12s cycle) */
     opacity: 0.8; /* Default opacity slightly higher */
+    /* z-index: 1; */ /* Ensure background icons are behind main content but potentially above absolute background gradient */
   }
 
 
@@ -284,6 +292,7 @@
      /* Adjusted opacity/duration for better visibility over gradient */
     animation: twinkle 6s ease-in-out infinite; /* Slower twinkle */
      opacity: 0.6; /* Default opacity slightly higher */
+    /* z-index: 1; */
   }
 
    /* Countdown Flip Animations */
