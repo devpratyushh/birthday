@@ -113,8 +113,8 @@ const BirthdayLetter: React.FC<BirthdayLetterProps> = ({ onLevelComplete }) => {
           console.log('Recognized:', command);
           setTranscript(command); // Store transcript
 
-          // Check for the keyword "express"
-           const isCorrectPhrase = command.includes('express');
+          // Check for the keywords "love" or "you"
+           const isCorrectPhrase = command.includes('love') || command.includes('you');
 
            if (isCorrectPhrase) {
                 toast({
@@ -136,7 +136,7 @@ const BirthdayLetter: React.FC<BirthdayLetterProps> = ({ onLevelComplete }) => {
                     toast({
                        variant: "destructive",
                        title: `Try Again?`, // Removed attempts left count
-                       description: `Hmm, I heard "${command}". Please clearly say "express". 😊`,
+                       description: `Hmm, I heard "${command}". Please say something with "love" or "you". 😊`, // Updated guidance
                      });
                  } else {
                       // Max attempts reached
@@ -289,7 +289,7 @@ const BirthdayLetter: React.FC<BirthdayLetterProps> = ({ onLevelComplete }) => {
             setTranscript(''); // Clear previous transcript
              toast({
                 title: "Listening...",
-                description: `Clearly say "express" into the mic! 🎤`, // Updated prompt
+                description: `Say something with "love" or "you"! 🎤`, // Updated prompt
                 duration: 5000, // Show toast for 5 seconds
              });
         } catch (err: any) {
@@ -419,7 +419,7 @@ const BirthdayLetter: React.FC<BirthdayLetterProps> = ({ onLevelComplete }) => {
 
 
                          <p className="text-foreground/90 mt-4">
-                            Hey <span className="interactive-word">my love</span>, I know you might be waiting for that special moment on snow-capped mountains to confess it, but hearing it from you, especially today on your birthday, would be more special than anything. ❤️ Click below and <strong className="text-interactive-highlight">express</strong> yourself.
+                             Hey <span className="interactive-word">my love</span>, I know you might be waiting for that special moment on snow-capped mountains to confess it, but hearing it from you, especially today on your 18th birthday, would be more special than anything. ❤️ Click below and <strong className="text-interactive-highlight">express</strong> yourself.
                          </p>
 
 
@@ -440,7 +440,7 @@ const BirthdayLetter: React.FC<BirthdayLetterProps> = ({ onLevelComplete }) => {
                             {transcript && !isListening && (
                                 <p className="text-sm text-muted-foreground">
                                     Heard: "{transcript}"
-                                    {transcript.includes('express') ? <CheckCircle className="inline ml-1 h-4 w-4 text-green-500"/> : <AlertCircle className="inline ml-1 h-4 w-4 text-red-500"/>}
+                                     {transcript.includes('love') || transcript.includes('you') ? <CheckCircle className="inline ml-1 h-4 w-4 text-green-500"/> : <AlertCircle className="inline ml-1 h-4 w-4 text-red-500"/>}
                                 </p>
                              )}
                          </div>
@@ -456,3 +456,5 @@ const BirthdayLetter: React.FC<BirthdayLetterProps> = ({ onLevelComplete }) => {
 };
 
 export default BirthdayLetter;
+
+    
