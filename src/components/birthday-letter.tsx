@@ -48,6 +48,7 @@ const BirthdayLetter: React.FC<BirthdayLetterProps> = ({ onLevelComplete }) => {
   const recognitionRef = useRef<SpeechRecognition | null>(null);
   const [failedAttempts, setFailedAttempts] = useState(0); // Track failed attempts
   const maxAttempts = 2;
+  const [proceedingAfterFail, setProceedingAfterFail] = useState(false); // State to prevent multiple triggers
 
 
   const letterContent = [
@@ -112,41 +113,45 @@ const BirthdayLetter: React.FC<BirthdayLetterProps> = ({ onLevelComplete }) => {
           console.log('Recognized:', command);
           setTranscript(command); // Store transcript
 
-          // Strict check for "i love you" (allowing minor variations)
-           const isCorrectPhrase = command.includes('i love you') || command.includes('i love u');
+          // Check for the keyword "express"
+           const isCorrectPhrase = command.includes('express');
 
            if (isCorrectPhrase) {
                 toast({
-                   title: "Aww, I love you too! 🥰",
+                   title: "Perfect! 🥰", // Updated success message
                    description: "💖 Level 2 Unlocked! 💖",
                    className: "bg-green-100 border-green-400 text-green-800", // Custom success style
                  });
                  setFailedAttempts(0); // Reset attempts on success
+                 setProceedingAfterFail(false); // Reset proceeding flag
                // Add a small delay before moving to the next level for the toast to be visible
                setTimeout(() => {
                    onLevelComplete(); // Go to next level
                }, 1500); // 1.5 second delay
            } else {
-                const attemptsLeft = maxAttempts - (failedAttempts + 1);
-                setFailedAttempts(prev => prev + 1);
+                const newFailedAttempts = failedAttempts + 1;
+                setFailedAttempts(newFailedAttempts);
 
-                if (attemptsLeft > 0) {
+                if (newFailedAttempts < maxAttempts) {
                     toast({
                        variant: "destructive",
-                       title: `Try Again? (${attemptsLeft} attempt${attemptsLeft > 1 ? 's' : ''} left)`,
-                       description: `Hmm, I heard "${command}". Please clearly say "I love you". 😊`,
+                       title: `Try Again?`, // Removed attempts left count
+                       description: `Hmm, I heard "${command}". Please clearly say "express". 😊`,
                      });
                  } else {
-                     // Max attempts reached
-                     toast({
-                       title: "It's okay... 😉",
-                       description: "Saving that for a special moment! Moving on...",
-                       className: "bg-blue-100 border-blue-400 text-blue-800", // Custom info style
-                     });
-                     // Proceed to the next level after showing the message
-                      setTimeout(() => {
-                         onLevelComplete(); // Go to next level
-                      }, 1500); // 1.5 second delay
+                      // Max attempts reached
+                      if (!proceedingAfterFail) { // Prevent multiple triggers
+                        setProceedingAfterFail(true);
+                         toast({
+                           title: "It's okay... 😉",
+                           description: "Saving that for a special moment! Moving on...",
+                           className: "bg-blue-100 border-blue-400 text-blue-800", // Custom info style
+                         });
+                         // Proceed to the next level after showing the message
+                          setTimeout(() => {
+                             onLevelComplete(); // Go to next level
+                          }, 1500); // 1.5 second delay
+                      }
                  }
            }
           setIsListening(false); // Stop listening animation
@@ -155,22 +160,42 @@ const BirthdayLetter: React.FC<BirthdayLetterProps> = ({ onLevelComplete }) => {
      recognition.onerror = (event) => {
         console.error('Speech recognition error:', event.error);
         let errorMessage = "Speech recognition error occurred.";
+        let shouldProceed = false;
+
         if (event.error === 'no-speech') {
             errorMessage = "Didn't hear anything. Please try speaking clearly near the microphone.";
         } else if (event.error === 'audio-capture') {
             errorMessage = "Microphone problem. Ensure it's enabled, connected, and not muted.";
+             // Proceed if mic capture fails persistently? Maybe not ideal, depends on desired flow
         } else if (event.error === 'not-allowed') {
             errorMessage = "Permission denied. Please allow microphone access in your browser settings and refresh.";
+            // Consider proceeding if permission is denied and they can't fix it?
+             shouldProceed = true; // Let's proceed if mic is denied
         } else if (event.error === 'network') {
             errorMessage = "Network error. Please check your connection.";
         } else if (event.error === 'service-not-allowed') {
              errorMessage = "Speech service is not allowed. Check browser/OS settings.";
+              shouldProceed = true; // Also proceed if service is blocked
         }
+
          toast({
             variant: "destructive",
             title: "Recognition Failed",
             description: errorMessage,
           });
+
+          if (shouldProceed && !proceedingAfterFail) {
+            setProceedingAfterFail(true);
+             toast({
+                title: "It's okay... 😉",
+                description: "Saving that for a special moment! Moving on...",
+                className: "bg-blue-100 border-blue-400 text-blue-800",
+              });
+             setTimeout(() => {
+                onLevelComplete();
+             }, 1500);
+          }
+
         setIsListening(false); // Stop listening animation
      };
 
@@ -194,7 +219,7 @@ const BirthdayLetter: React.FC<BirthdayLetterProps> = ({ onLevelComplete }) => {
        recognitionRef.current = null;
      };
    // Add failedAttempts to dependency array if its change should re-setup listeners (usually not needed here)
-   }, [onLevelComplete, toast, failedAttempts, isListening]); // Added isListening to deps for onend cleanup logic
+   }, [onLevelComplete, toast, failedAttempts, isListening, proceedingAfterFail]); // Added proceedingAfterFail
 
 
    // Function to handle the voice trigger button click
@@ -204,14 +229,15 @@ const BirthdayLetter: React.FC<BirthdayLetterProps> = ({ onLevelComplete }) => {
         return;
      }
       // Don't allow starting if max attempts reached and not successful yet
-      if (failedAttempts >= maxAttempts) {
+      if (failedAttempts >= maxAttempts && !proceedingAfterFail) {
+          setProceedingAfterFail(true); // Prevent further clicks from triggering this path
           toast({
              title: "Already Moving On",
              description: "We're saving that for later! 😉",
              className: "bg-blue-100 border-blue-400 text-blue-800",
            });
-          // Maybe trigger onLevelComplete immediately if they click again after failing?
-          // setTimeout(() => { onLevelComplete(); }, 500);
+          // Trigger onLevelComplete immediately if they click again after failing
+           setTimeout(() => { onLevelComplete(); }, 1500);
           return;
       }
 
@@ -231,6 +257,18 @@ const BirthdayLetter: React.FC<BirthdayLetterProps> = ({ onLevelComplete }) => {
                      description: "Please allow microphone access in your browser settings and refresh the page.",
                      duration: 7000, // Longer duration for permission errors
                  });
+                  // Proceed if mic access is denied
+                  if (!proceedingAfterFail) {
+                      setProceedingAfterFail(true);
+                      setTimeout(() => {
+                          toast({
+                              title: "It's okay... 😉",
+                              description: "Saving that for a special moment! Moving on...",
+                              className: "bg-blue-100 border-blue-400 text-blue-800",
+                          });
+                          onLevelComplete();
+                      }, 1500); // Add a delay
+                  }
                  return;
              }
 
@@ -250,19 +288,29 @@ const BirthdayLetter: React.FC<BirthdayLetterProps> = ({ onLevelComplete }) => {
             setTranscript(''); // Clear previous transcript
              toast({
                 title: "Listening...",
-                description: `Say 'I love you' clearly into the mic! 🎤 (${maxAttempts - failedAttempts} attempt${maxAttempts - failedAttempts !== 1 ? 's' : ''} left)`,
+                description: `Clearly say "express" into the mic! 🎤`, // Updated prompt
                 duration: 5000, // Show toast for 5 seconds
              });
         } catch (err: any) {
              console.error("Microphone access error:", err);
              let errorDesc = "Could not access the microphone. Please ensure it's connected and allowed.";
+             let shouldProceedOnError = false;
+
              if (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError') {
                  errorDesc = "Microphone permission denied. Please allow access in your browser settings and refresh.";
+                 shouldProceedOnError = true; // Proceed if permission denied during getUserMedia
              } else if (err.name === 'NotFoundError' || err.name === 'DevicesNotFoundError') {
                  errorDesc = "No microphone found. Please connect a microphone.";
+                 shouldProceedOnError = true; // Proceed if no mic found
              } else if (err.name === 'AbortError') {
                  errorDesc = "Microphone access request was dismissed.";
+             } else if (err.name === 'NotReadableError') {
+                errorDesc = "Microphone is busy or cannot be read. Try closing other apps using it.";
+             } else if (err.name === 'SecurityError') {
+                 errorDesc = "Microphone access is blocked due to security settings.";
+                 shouldProceedOnError = true; // Proceed on security block
              }
+
              toast({
                 variant: "destructive",
                 title: "Microphone Error",
@@ -270,6 +318,19 @@ const BirthdayLetter: React.FC<BirthdayLetterProps> = ({ onLevelComplete }) => {
                 duration: 7000, // Longer duration for permission errors
              });
              setIsListening(false);
+
+              // Proceed if specific errors occur
+              if (shouldProceedOnError && !proceedingAfterFail) {
+                  setProceedingAfterFail(true);
+                  setTimeout(() => {
+                       toast({
+                         title: "It's okay... 😉",
+                         description: "Saving that for a special moment! Moving on...",
+                         className: "bg-blue-100 border-blue-400 text-blue-800",
+                       });
+                      onLevelComplete();
+                  }, 1500); // Add delay
+              }
         }
      }
    };
@@ -358,8 +419,9 @@ const BirthdayLetter: React.FC<BirthdayLetterProps> = ({ onLevelComplete }) => {
                           </div>
 
 
-                         <p className="text-foreground/90 mt-4">...and then, tell me something sweet! Click the button below and clearly say <strong className="text-interactive-highlight">"I love you"</strong> into your microphone.</p>
-                         <p className="text-sm text-muted-foreground">(You have {maxAttempts - failedAttempts} attempt{maxAttempts - failedAttempts !== 1 ? 's' : ''} left)</p>
+                         <p className="text-foreground/90 mt-4">...and then, <strong className="text-interactive-highlight">express</strong> yourself! Click the button below and clearly say <strong className="text-interactive-highlight">"express"</strong> into your microphone.</p>
+                         {/* Removed attempts left display */}
+                         {/* <p className="text-sm text-muted-foreground">(You have {maxAttempts - failedAttempts} attempt{maxAttempts - failedAttempts !== 1 ? 's' : ''} left)</p> */}
 
 
                          {/* Voice Trigger Button */}
@@ -368,10 +430,10 @@ const BirthdayLetter: React.FC<BirthdayLetterProps> = ({ onLevelComplete }) => {
                              variant="default"
                              size="lg"
                              className={`bg-accent hover:bg-accent/90 text-accent-foreground ${isListening ? 'animate-pulse' : ''} disabled:bg-muted disabled:text-muted-foreground disabled:cursor-not-allowed`}
-                             disabled={isListening || failedAttempts >= maxAttempts} // Disable if listening or max attempts reached
+                             disabled={isListening || proceedingAfterFail} // Disable if listening or already proceeding after failure/error
                            >
                              <Mic className="mr-2 h-5 w-5" />
-                             {isListening ? 'Listening...' : failedAttempts >= maxAttempts ? 'Moving on...' : 'Say "I love you"'}
+                              {isListening ? 'Listening...' : proceedingAfterFail ? 'Moving on...' : 'Say "express"'}
                           </Button>
 
                          {/* Optional: Display transcript or status icon */}
@@ -379,7 +441,7 @@ const BirthdayLetter: React.FC<BirthdayLetterProps> = ({ onLevelComplete }) => {
                             {transcript && !isListening && (
                                 <p className="text-sm text-muted-foreground">
                                     Heard: "{transcript}"
-                                    {(transcript.includes('i love you') || transcript.includes('i love u')) ? <CheckCircle className="inline ml-1 h-4 w-4 text-green-500"/> : <AlertCircle className="inline ml-1 h-4 w-4 text-red-500"/>}
+                                    {transcript.includes('express') ? <CheckCircle className="inline ml-1 h-4 w-4 text-green-500"/> : <AlertCircle className="inline ml-1 h-4 w-4 text-red-500"/>}
                                 </p>
                              )}
                          </div>

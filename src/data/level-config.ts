@@ -43,7 +43,7 @@ export const levelConfig: LevelConfig = {
     videoId: extractVideoId('https://www.youtube.com/watch?v=x5R0RWU1O1M'), // Extracted ID for Level 2 proposal video
   },
   levelThree: {
-    imageUrl: '/placeholder-final-image.jpg', // TODO: Replace with actual image URL (can be relative or absolute)
-    meetLink: 'https://meet.google.com/your-meet-link', // TODO: Replace with actual Google Meet link
+    imageUrl: 'https://i.imgur.com/t8I7H8D.jpeg', // Updated image URL for Level 3
+    meetLink: 'https://meet.google.com/skt-pyix-qmv', // Updated Google Meet link (added https://)
   },
 };
