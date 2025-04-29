@@ -59,21 +59,21 @@ const LevelThree: React.FC<LevelThreeProps> = ({ imageUrl, meetLink }) => {
             <CardContent className="flex flex-col items-center space-y-6 p-6 md:p-8">
               <p className="text-lg text-foreground/90">A special memory, framed just for you.</p>
 
-              {/* Wooden Frame Styling */}
-              <div className="relative p-3 md:p-4 bg-gradient-to-br from-yellow-800 via-yellow-900 to-yellow-950 rounded-lg shadow-inner border-4 border-yellow-700/50 w-full max-w-md aspect-[3/4] overflow-hidden mx-auto"> {/* Adjusted max-w and aspect ratio */}
-                {/* Inner shadow/bevel effect */}
-                <div className="absolute inset-1 border border-black/20 rounded-sm pointer-events-none"></div>
-                <div className="absolute inset-2 border border-white/10 rounded-xs pointer-events-none"></div>
+              {/* Updated Frame Styling: Thick, white wood-like */}
+              <div className="relative p-2 bg-white rounded-md shadow-lg border-[12px] border-stone-200 w-full max-w-md aspect-[3/4] overflow-hidden mx-auto"> {/* Thick white/light border, outer shadow */}
+                {/* Optional: Subtle inner shadow for depth */}
+                <div className="absolute inset-0.5 border border-black/10 rounded-sm pointer-events-none"></div>
 
                   <Image
                      src={imageUrl || placeholderImageUrl('final-image')} // Use provided URL or placeholder
                      alt="Our Special Moment"
                      layout="fill"
                      objectFit="cover" // Cover ensures image fills the frame nicely
-                     className="rounded-sm"
+                     className="rounded-sm" // Apply slight rounding to the image itself
                       onError={(e) => { (e.target as HTMLImageElement).src = placeholderImageUrl('final-image-error'); }}
                   />
               </div>
+
 
               <p className="text-lg text-foreground/90 mt-8">And finally... let's talk?</p>
 
