@@ -22,8 +22,8 @@
     "paths": {
       "@/*": ["./src/*"]
     },
-    // Add types for Web Speech API
-    "types": ["node", "react", "@types/dom-speech-recognition"]
+    // Removed @types/dom-speech-recognition
+    "types": ["node", "react"]
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
   "exclude": ["node_modules"]
