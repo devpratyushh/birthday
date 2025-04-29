@@ -11,9 +11,9 @@ const geistSans = Geist({
 
 export const metadata: Metadata = {
   title: "Happy Birthday!",
-  description: "A birthday website",
+  description: "Happiest birthday to my cutest and the sweetest Ananditaaa",
   icons: {
-    icon: "/favicon.ico",
+    icon: "https://i.imgur.com/cRIQIm4.png",
     apple: "/apple-touch-icon.png",
     
   },
