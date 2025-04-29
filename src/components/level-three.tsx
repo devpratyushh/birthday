@@ -59,10 +59,9 @@ const LevelThree: React.FC<LevelThreeProps> = ({ imageUrl, meetLink }) => {
             <CardContent className="flex flex-col items-center space-y-6 p-6 md:p-8">
               <p className="text-lg text-foreground/90">A special memory, framed just for you.</p>
 
-              {/* Updated Frame Styling: Thick, white wood-like */}
-              <div className="relative p-2 bg-white rounded-md shadow-lg border-[12px] border-stone-200 w-full max-w-md aspect-[3/4] overflow-hidden mx-auto"> {/* Thick white/light border, outer shadow */}
-                {/* Optional: Subtle inner shadow for depth */}
-                <div className="absolute inset-0.5 border border-black/10 rounded-sm pointer-events-none"></div>
+              {/* Updated Frame Styling: Thick pink border */}
+              {/* The p-2 acts as the inner padding/matte, the border-[12px] is the thick frame */}
+              <div className="relative p-2 bg-primary/20 rounded-md shadow-lg border-[12px] border-primary/70 w-full max-w-md aspect-[3/4] overflow-hidden mx-auto"> {/* Thick pink border, adjusted background */}
 
                   <Image
                      src={imageUrl || placeholderImageUrl('final-image')} // Use provided URL or placeholder
@@ -72,6 +71,8 @@ const LevelThree: React.FC<LevelThreeProps> = ({ imageUrl, meetLink }) => {
                      className="rounded-sm" // Apply slight rounding to the image itself
                       onError={(e) => { (e.target as HTMLImageElement).src = placeholderImageUrl('final-image-error'); }}
                   />
+                   {/* Optional: Subtle inner shadow for depth inside the frame */}
+                  <div className="absolute inset-2 border border-black/10 rounded-sm pointer-events-none shadow-inner"></div>
               </div>
 
 
