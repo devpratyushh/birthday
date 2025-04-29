@@ -419,7 +419,7 @@ const BirthdayLetter: React.FC<BirthdayLetterProps> = ({ onLevelComplete }) => {
 
 
                          <p className="text-foreground/90 mt-4">
-                            Hey <span className="interactive-word">my love</span>, I know you might be waiting for that special moment on snow-capped mountains to confess it, but hearing it from you, especially today on your birthday, would be more special than anything. ❤️ Click below and say <strong className="text-interactive-highlight">"express"</strong>.
+                            Hey <span className="interactive-word">my love</span>, I know you might be waiting for that special moment on snow-capped mountains to confess it, but hearing it from you, especially today on your birthday, would be more special than anything. ❤️ Click below and <strong className="text-interactive-highlight">express</strong> yourself.
                          </p>
 
 
