@@ -164,7 +164,7 @@ const BirthdayLetter: React.FC<BirthdayLetterProps> = ({ onLevelComplete }) => {
                           </div>
 
                          <p className="text-foreground/90 mt-4">
-                            Hey <span className="interactive-word">my love</span>, I know you might be waiting for that special moment on snow-capped mountains to confess it, but hearing it from you, especially today on your 18th birthday, would be more special than anything. ❤️ Click below and <strong className="text-interactive-highlight">express</strong> yourself.
+                            Hey <span className="interactive-word">my love</span>, I know you might be waiting for that special moment on snow-capped mountains to confess it, but hearing it from you, especially today on your 18th birthday, would be more special than anything. ❤️ Maybe <strong className="text-interactive-highlight">express</strong> yourself tonight or .
                          </p>
 
                         {/* 'Continue' Button */}
@@ -177,7 +177,7 @@ const BirthdayLetter: React.FC<BirthdayLetterProps> = ({ onLevelComplete }) => {
                              size="lg"
                              className="bg-accent hover:bg-accent/90 text-accent-foreground mt-4"
                            >
-                             Continue to Next Surprise <ArrowRight className="ml-2 h-5 w-5" />
+                             Skip to Next Surprise <ArrowRight className="ml-2 h-5 w-5" />
                           </Button>
 
                      </div>
