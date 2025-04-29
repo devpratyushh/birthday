@@ -9,11 +9,12 @@ const geistSans = Geist({
 });
 
 export const metadata: Metadata = {
-  title: 'Happy Birthday',
+  title: 'Happy Birthday!',
   description: 'A birthday website',
   icons: {
-    icon: "❤️"
-  }
+    icon: "❤️",
+  },
+
 };
 
 export default function RootLayout({
