@@ -34,11 +34,11 @@ const LevelTwo: React.FC<LevelTwoProps> = ({ videoId, onLevelComplete }) => {
       <Card className="shadow-xl bg-card/95 backdrop-blur-md rounded-xl">
         <CardHeader className="text-center">
           <CardTitle className="text-3xl md:text-4xl font-bold text-primary-highlight">
-            Level 2: The Big Question? 💍
+            Level 2: The Longg Story ⏳ {/* Updated title */}
           </CardTitle>
         </CardHeader>
         <CardContent className="flex flex-col items-center space-y-6 p-6 md:p-8">
-           <p className="text-lg text-foreground/90">I have something important to ask you...</p>
+           <p className="text-lg text-foreground/90">I have something to tell you...</p> {/* Updated subtitle */}
 
           {/* YouTube Embed */}
           <div className="w-full max-w-2xl aspect-video rounded-lg overflow-hidden shadow-lg border border-secondary/30">
