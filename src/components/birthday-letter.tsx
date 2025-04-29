@@ -167,6 +167,7 @@ const BirthdayLetter: React.FC<BirthdayLetterProps> = ({ onLevelComplete }) => {
         } else if (event.error === 'audio-capture') {
             errorMessage = "Microphone problem. Ensure it's enabled, connected, and not muted.";
              // Proceed if mic capture fails persistently? Maybe not ideal, depends on desired flow
+             shouldProceed = true; // Let's proceed if mic capture fails too
         } else if (event.error === 'not-allowed') {
             errorMessage = "Permission denied. Please allow microphone access in your browser settings and refresh.";
             // Consider proceeding if permission is denied and they can't fix it?
@@ -294,21 +295,19 @@ const BirthdayLetter: React.FC<BirthdayLetterProps> = ({ onLevelComplete }) => {
         } catch (err: any) {
              console.error("Microphone access error:", err);
              let errorDesc = "Could not access the microphone. Please ensure it's connected and allowed.";
-             let shouldProceedOnError = false;
+             let shouldProceedOnError = true; // Proceed on most mic errors now
 
              if (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError') {
                  errorDesc = "Microphone permission denied. Please allow access in your browser settings and refresh.";
-                 shouldProceedOnError = true; // Proceed if permission denied during getUserMedia
              } else if (err.name === 'NotFoundError' || err.name === 'DevicesNotFoundError') {
                  errorDesc = "No microphone found. Please connect a microphone.";
-                 shouldProceedOnError = true; // Proceed if no mic found
              } else if (err.name === 'AbortError') {
                  errorDesc = "Microphone access request was dismissed.";
+                 shouldProceedOnError = false; // Maybe don't proceed if they just dismissed it
              } else if (err.name === 'NotReadableError') {
                 errorDesc = "Microphone is busy or cannot be read. Try closing other apps using it.";
              } else if (err.name === 'SecurityError') {
                  errorDesc = "Microphone access is blocked due to security settings.";
-                 shouldProceedOnError = true; // Proceed on security block
              }
 
              toast({
@@ -410,7 +409,7 @@ const BirthdayLetter: React.FC<BirthdayLetterProps> = ({ onLevelComplete }) => {
                  {showPrompt && (
                      <div className="mt-12 p-6 border-t border-dashed border-accent/50 text-center space-y-4 animate-fade-in">
                          <h3 className="text-2xl font-semibold text-accent">Next Step!</h3>
-                         <p className="text-foreground/90">Before you unlock the next surprise, watch this short clip...</p>
+                         <p className="text-foreground/90">Watch this first...</p>
 
                          {/* YouTube Embed Placeholder */}
                           <div className="my-4 rounded-lg overflow-hidden shadow-lg border border-secondary/30 max-w-md mx-auto aspect-video">
@@ -419,9 +418,9 @@ const BirthdayLetter: React.FC<BirthdayLetterProps> = ({ onLevelComplete }) => {
                           </div>
 
 
-                         <p className="text-foreground/90 mt-4">...and then, <strong className="text-interactive-highlight">express</strong> yourself! Click the button below and clearly say <strong className="text-interactive-highlight">"express"</strong> into your microphone.</p>
-                         {/* Removed attempts left display */}
-                         {/* <p className="text-sm text-muted-foreground">(You have {maxAttempts - failedAttempts} attempt{maxAttempts - failedAttempts !== 1 ? 's' : ''} left)</p> */}
+                         <p className="text-foreground/90 mt-4">
+                            Hey <span className="interactive-word">my love</span>, I know you might be waiting for that special moment on snow-capped mountains to confess it, but hearing it from you, especially today on your birthday, would be more special than anything. ❤️ Click below and say <strong className="text-interactive-highlight">"express"</strong>.
+                         </p>
 
 
                          {/* Voice Trigger Button */}
@@ -433,7 +432,7 @@ const BirthdayLetter: React.FC<BirthdayLetterProps> = ({ onLevelComplete }) => {
                              disabled={isListening || proceedingAfterFail} // Disable if listening or already proceeding after failure/error
                            >
                              <Mic className="mr-2 h-5 w-5" />
-                              {isListening ? 'Listening...' : proceedingAfterFail ? 'Moving on...' : 'Say "express"'}
+                              {isListening ? 'Listening...' : proceedingAfterFail ? 'Moving on...' : 'Record'}
                           </Button>
 
                          {/* Optional: Display transcript or status icon */}
